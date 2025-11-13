@@ -7,27 +7,52 @@ using Ecommerce.Services.Implementation;
 using Ecommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SERVICIOS (CONTENEDOR DI) ---
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-// ***
-// 1. REGISTRA EL DbContext (El BUENO, de Persistence)
-// ***
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+//Aqui se va a editar la conexion con la base de datos, ya no en appsettings.json
+var connectionString = $"server={dbHost};database=EcommerceDB;user=WebAdmin;password=admin;";
+
+Console.WriteLine($"[DEBUG] DB_HOST env var = '{dbHost}'");
+Console.WriteLine($"[DEBUG] Connection string = '{connectionString}'");
+
+
+// If you use EF Core:
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
     options.UseMySql(
-        connectionString,
+        connectionString, 
         ServerVersion.AutoDetect(connectionString),
         mySqlOptions =>
         {
             mySqlOptions.MigrationsAssembly("Ecommerce.Persistence");
         }
-    );
-});
+        ));
+
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// ***
+// 1. REGISTRA EL DbContext (El BUENO, de Persistence)
+// ***
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//{
+    //options.UseMySql(
+//        connectionString,
+//        ServerVersion.AutoDetect(connectionString),
+//        mySqlOptions =>
+//        {
+//            mySqlOptions.MigrationsAssembly("Ecommerce.Persistence");
+        //}
+//    );
+//});
 
 // 2. REGISTRA IDENTITY
 // (Usa el DbContext que acabamos de registrar)
