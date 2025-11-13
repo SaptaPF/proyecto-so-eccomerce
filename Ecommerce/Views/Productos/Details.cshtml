@@ -1,0 +1,96 @@
+﻿@model Ecommerce.Dtos.ProductoDto
+
+@{
+    // 1. El título de la pestaña será el nombre del producto
+    ViewData["Title"] = Model.Nombre;
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 my-16 md:my-24">
+    <div class="flex flex-col md:flex-row gap-12">
+
+        <!-- Columna de la Imagen -->
+        <div class="w-full md:w-1/2">
+            <img src="https://placehold.co/500x500/1F2937/00e0b0?text=@Model.Nombre" class="w-full img-fluid rounded-lg shadow-lg" alt="Imagen de @Model.Nombre">
+        </div>
+
+        <!-- Columna de los Detalles -->
+        <div class="w-full md:w-1/2">
+            <!-- 2. Nombre del Producto -->
+            <h1 class="text-4xl font-extrabold text-white">@Model.Nombre</h1>
+
+            <!-- 3. Puntuación y Reseñas -->
+            <div class="flex items-center mt-3">
+                @await Html.PartialAsync("_RatingStarsPartial", Model.AverageRating)
+                <span class="ml-3 text-sm text-gray-400">(@Model.ReviewCount reseñas)</span>
+            </div>
+
+            <!-- 4. Precio -->
+            <h2 class="text-accent text-5xl font-bold my-4">@Model.Precio.ToString("C")</h2>
+
+            <!-- 5. Stock -->
+            <div class="my-4">
+                @if (Model.Stock > 10)
+                {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-900 text-green-200">
+                        <i class="fas fa-check-circle mr-2"></i> En Stock
+                    </span>
+                }
+                else if (Model.Stock > 0)
+                {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-900 text-yellow-200">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> ¡Últimas @Model.Stock unidades!
+                    </span>
+                }
+                else
+                {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-900 text-red-200">
+                        <i class="fas fa-times-circle mr-2"></i> Agotado
+                    </span>
+                }
+            </div>
+
+            <!-- 6. Descripción Completa -->
+            <h4 class="mt-6 text-xl font-semibold text-white">Descripción</h4>
+            <p class="mt-2 text-gray-300 text-lg leading-relaxed">@Model.Descripcion</p>
+
+            <!-- 7. Lista de Categorías (del DTO) -->
+            <h5 class="mt-6 text-lg font-semibold text-white">Categorías</h5>
+            <div class="flex flex-wrap gap-2 mt-2">
+                @foreach (var categoriaNombre in Model.NombresCategorias)
+                {
+                    <span class="px-3 py-1 bg-gray-700 text-gray-200 text-sm font-medium rounded-full">@categoriaNombre</span>
+                }
+            </div>
+
+            <hr class="border-gray-700 my-8">
+
+            <!-- 8. Acciones (Añadir al carrito) -->
+            <div class="d-grid gap-2">
+                <!--
+                    ¡ESTE ES EL BOTÓN IMPORTANTE!
+                    El script global en _Layout.cshtml lo encontrará.
+                -->
+                <button data-producto-id="@Model.ProductoId"
+                        class="btn-add-to-cart w-full bg-accent text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:opacity-90 transition duration-300 text-lg"
+                        disabled="@(Model.Stock <= 0)">
+
+                    @if (Model.Stock > 0)
+                    {
+                        <><i class="fas fa-cart-plus mr-2"></i> Añadir al Carrito</>
+                    }
+                    else
+                    {
+                        <><i class="fas fa-times-circle mr-2"></i> Agotado</>
+                    }
+                </button>
+            </div>
+
+            <!-- 9. Volver a la lista -->
+            <div class="mt-4">
+                <a asp-controller="Productos" asp-action="Index" class="text-accent hover:text-accent-hover transition duration-300">
+                    &larr; Volver al catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

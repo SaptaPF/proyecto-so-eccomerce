@@ -1,0 +1,272 @@
+﻿@page
+@model RegisterModel
+
+@{
+    Layout = null; // ¡Importante! Usamos nuestro propio layout
+}
+
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Smart Buy</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            '900': '#111111', // Fondo principal
+                            '800': '#1a1a1a', // Fondo de tarjetas
+                            '700': '#2a2a2a', // Bordes
+                        },
+                        accent: {
+                            'DEFAULT': '#00e0b0', // Verde menta
+                            'hover': '#00c49b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark body {
+            background-color: #111111;
+        }
+
+        .text-accent {
+            color: #00e0b0;
+        }
+
+        .bg-accent {
+            background-color: #00e0b0;
+            color: #111111;
+        }
+
+            .bg-accent:hover {
+                background-color: #00c49b;
+            }
+
+        .border-accent {
+            border-color: #00e0b0;
+        }
+
+        .focus\:ring-accent:focus {
+            --tw-ring-color: #00e0b0;
+        }
+
+        .focus\:border-accent:focus {
+            --tw-border-color: #00e0b0;
+        }
+
+        .focus\:ring-accent:focus {
+            ring-color: #00e0b0;
+        }
+
+        .checked\:bg-accent:checked {
+            background-color: #00e0b0;
+        }
+
+        .bg-gray-800 {
+            background-color: #1a1a1a;
+        }
+
+        .bg-gray-900 {
+            background-color: #111111;
+        }
+
+        .border-gray-800 {
+            border-color: #1a1a1a;
+        }
+
+        .border-gray-700 {
+            border-color: #2a2a2a;
+        }
+    </style>
+</head>
+<body class="dark bg-gray-900 text-gray-200">
+
+    <!-- 1. BARRA DE NAVEGACIÓN (Copia de tu Home) -->
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo y Enlaces -->
+                <div class="flex items-center">
+                    <a asp-controller="Home" asp-action="Index" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-bolt text-accent text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-white">Smart Buy</span>
+                    </a>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a asp-controller="Home" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
+                        <a asp-controller="Productos" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Productos</a>
+                        <a href="#" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Categorías</a>
+                        <a href="#" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Ofertas</a>
+                    </div>
+                </div>
+                <!-- Iconos Derecha (Con _LoginPartial) -->
+                <div class="flex items-center">
+                    <button class="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none">
+                        <i class="fas fa-shopping-cart fa-lg"></i>
+                    </button>
+                    <!-- Vista parcial de Login/Logout -->
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. CONTENIDO PRINCIPAL - FORMULARIO DE REGISTRO -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 my-16 md:my-24">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+
+                <!-- La tarjeta del formulario -->
+                <div class="bg-gray-800 shadow-lg rounded-lg p-8">
+                    <h1 class="text-3xl font-extrabold text-white text-center mb-6">Crear Cuenta Nueva</h1>
+
+                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+                        <!-- Mensajes de error generales -->
+                        <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4" role="alert"></div>
+
+                        <!--
+                            NUEVOS CAMPOS AÑADIDOS
+                        -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Campo Nombre -->
+                            <div class="mb-4">
+                                <label asp-for="Input.Nombre" class="block text-sm font-medium text-gray-300 mb-2"></label>
+                                <input asp-for="Input.Nombre" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-accent focus:border-accent" autocomplete="name" />
+                                <span asp-validation-for="Input.Nombre" class="text-red-500 text-xs mt-1"></span>
+                            </div>
+                            <!-- Campo Apellido -->
+                            <div class="mb-4">
+                                <label asp-for="Input.Apellido" class="block text-sm font-medium text-gray-300 mb-2"></label>
+                                <input asp-for="Input.Apellido" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-accent focus:border-accent" autocomplete="family-name" />
+                                <span asp-validation-for="Input.Apellido" class="text-red-500 text-xs mt-1"></span>
+                            </div>
+                        </div>
+                        <!--
+                            FIN DE CAMPOS NUEVOS
+                        -->
+                        <!-- Campo Email -->
+                        <div class="mb-4">
+                            <label asp-for="Input.Email" class="block text-sm font-medium text-gray-300 mb-2"></label>
+                            <input asp-for="Input.Email" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-accent focus:border-accent" autocomplete="username" />
+                            <span asp-validation-for="Input.Email" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+
+                        <!-- Campo Contraseña -->
+                        <div class="mb-4">
+                            <label asp-for="Input.Password" class="block text-sm font-medium text-gray-300 mb-2"></label>
+                            <input asp-for="Input.Password" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-accent focus:border-accent" autocomplete="new-password" />
+                            <span asp-validation-for="Input.Password" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+
+                        <!-- Campo Confirmar Contraseña -->
+                        <div class="mb-6">
+                            <label asp-for="Input.ConfirmPassword" class="block text-sm font-medium text-gray-300 mb-2"></label>
+                            <input asp-for="Input.ConfirmPassword" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-accent focus:border-accent" autocomplete="new-password" />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-red-500 text-xs mt-1"></span>
+                        </div>
+
+                        <!-- Botón de Envío -->
+                        <div>
+                            <button id="registerSubmit" type="submit" class="w-full bg-accent text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:opacity-90 transition duration-300">
+                                Registrarse
+                            </button>
+                        </div>
+
+                        <!-- Otros enlaces -->
+                        <div class="mt-6 text-center text-sm">
+                            <p>
+                                <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="font-medium text-accent hover:text-accent-hover">¿Ya tienes una cuenta? Inicia Sesión</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- 3. FOOTER (Copia de tu Home) -->
+    <footer class="bg-gray-800 mt-16 md:mt-24">
+        <!-- ... (El código del footer es idéntico al de Login.cshtml, puedes copiarlo y pegarlo aquí) ... -->
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Columna 1: Logo y Redes -->
+                <div>
+                    <a asp-controller="Home" asp-action="Index" class="flex items-center">
+                        <i class="fas fa-bolt text-accent text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-white">Smart Buy</span>
+                    </a>
+                    <p class="mt-4 text-gray-400 text-sm">
+                        Tu tienda de confianza para los mejores gadgets y accesorios tecnológicos.
+                    </p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <!-- Columnas 2, 3, 4: Enlaces Estáticos -->
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Productos</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Audio</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Gaming</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Smart Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Accesorios PC</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Empresa</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Sobre Nosotros</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Contacto</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Envíos</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Devoluciones</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Ayuda</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Centro de Ayuda</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Privacidad</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Términos</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-500 text-sm">
+                    &copy; @DateTime.Now.Year Smart Buy. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
