@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Ecommerce.Mapping;
 using Ecommerce.Models;
 using Ecommerce.Persistence; // <-- El using BUENO
@@ -10,8 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 
 
-var builder = WebApplication.CreateBuilder(args);
 
+var builder = WebApplication.CreateBuilder(args);
+//variables de entorno dentro del docker
+Env.Load("/app/myapp.env");
 // --- 1. CONFIGURACIÓN DE SERVICIOS (CONTENEDOR DI) ---
 
 builder.Configuration
