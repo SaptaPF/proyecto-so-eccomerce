@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Ecommerce.Dtos.CategoriaDto>
+
+@{
+    ViewData["Title"] = "Nuestras Categorías";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-extrabold text-white mb-4">Explora por Categoría</h1>
+        <p class="text-gray-400 text-lg">Encuentra exactamente lo que buscas navegando por nuestras colecciones.</p>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            @foreach (var categoria in Model)
+            {
+                <a asp-controller="Productos"
+                   asp-action="Index"
+                   asp-route-categoriaId="@categoria.CategoriaId"
+                   class="group block bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:bg-gray-700 transition duration-300 border border-transparent hover:border-accent">
+
+                    <div class="p-8 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition duration-300">
+                            <i class="fas fa-layer-group text-accent text-3xl"></i>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-accent transition">
+                            @categoria.Nombre
+                        </h3>
+
+                        <span class="inline-block bg-gray-900 text-gray-400 text-xs font-bold px-3 py-1 rounded-full">
+                            @categoria.CantidadProductos Productos
+                        </span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-12">
+            <p class="text-gray-400">No hay categorías disponibles en este momento.</p>
+        </div>
+    }
+</div>

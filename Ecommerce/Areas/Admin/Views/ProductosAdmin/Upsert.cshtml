@@ -1,0 +1,115 @@
+﻿@model Ecommerce.Dtos.ProductoUpsertViewModel
+
+@{
+    ViewData["Title"] = (Model.Producto.ProductoId == 0) ? "Crear Producto" : "Editar Producto";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <h1 class="text-3xl font-extrabold text-white mb-8">
+        @ViewData["Title"]
+    </h1>
+
+    <div class="max-w-4xl mx-auto bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
+
+        <form method="post" asp-action="Upsert" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input asp-for="Producto.ProductoId" hidden />
+            <input asp-for="Producto.ImagenUrl" hidden />
+
+            <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4" role="alert"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label asp-for="Producto.Nombre" class="block text-sm font-medium text-gray-300">Nombre</label>
+                        <input asp-for="Producto.Nombre" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:ring-accent focus:border-accent" />
+                        <span asp-validation-for="Producto.Nombre" class="text-red-400 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Producto.Descripcion" class="block text-sm font-medium text-gray-300">Descripción</label>
+                        <textarea asp-for="Producto.Descripcion" rows="4" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:ring-accent focus:border-accent"></textarea>
+                        <span asp-validation-for="Producto.Descripcion" class="text-red-400 text-sm"></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="Producto.Precio" class="block text-sm font-medium text-gray-300">Precio</label>
+                            <input asp-for="Producto.Precio" type="number" step="0.01" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:ring-accent focus:border-accent" />
+                            <span asp-validation-for="Producto.Precio" class="text-red-400 text-sm"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Producto.Stock" class="block text-sm font-medium text-gray-300">Stock</label>
+                            <input asp-for="Producto.Stock" type="number" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:ring-accent focus:border-accent" />
+                            <span asp-validation-for="Producto.Stock" class="text-red-400 text-sm"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label asp-for="Producto.ImagenArchivo" class="block text-sm font-medium text-gray-300">Imagen</label>
+                        <input type="file" name="files" id="uploadBox" class="mt-1 block w-full text-gray-300 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-accent hover:file:bg-gray-600" />
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+
+                    @if (!string.IsNullOrEmpty(Model.Producto.ImagenUrl))
+                    {
+                        <div class="bg-gray-700 p-2 rounded-md">
+                            <p class="text-xs text-gray-400 mb-2">Imagen Actual:</p>
+                            <img src="@Model.Producto.ImagenUrl" class="w-full h-48 object-cover rounded-md" />
+                        </div>
+                    }
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300">Categorías</label>
+                        <div class="mt-2 bg-gray-700 border border-gray-600 rounded-md p-4 max-h-60 overflow-y-auto space-y-2">
+                            @for (int i = 0; i < Model.CategoriasDisponibles.Count; i++)
+                            {
+                                <div class="flex items-center">
+                                    <input type="hidden" asp-for="@Model.CategoriasDisponibles[i].CategoriaId" />
+                                    <input type="hidden" asp-for="@Model.CategoriasDisponibles[i].Nombre" />
+                                    <input asp-for="@Model.CategoriasDisponibles[i].IsChecked"
+                                           id="cat-@i" type="checkbox" class="h-4 w-4 rounded bg-gray-600 border-gray-500 text-accent focus:ring-accent" />
+                                    <label for="cat-@i" class="ml-3 text-sm text-gray-300">
+                                        @Model.CategoriasDisponibles[i].Nombre
+                                    </label>
+
+                                    <input type="checkbox" name="Producto.CategoriaIds"
+                                           value="@Model.CategoriasDisponibles[i].CategoriaId"
+                                           @(Model.CategoriasDisponibles[i].IsChecked ? "checked" : "") hidden />
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="Producto.CategoriaIds" class="text-red-400 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 mt-8 pt-8 border-t border-gray-700">
+                <a asp-action="Index" class="px-4 py-2 border border-gray-600 text-white rounded-md hover:bg-gray-700">Cancelar</a>
+                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-md hover:opacity-90 font-bold">Guardar Producto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Sincronizar checkboxes visibles con los ocultos
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="cat-"]');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const val = this.parentElement.querySelector('input[name="Producto.CategoriaIds"]').value;
+                    const hidden = document.querySelector(`input[name="Producto.CategoriaIds"][value="${val}"]`);
+                    if(hidden) hidden.checked = this.checked;
+                });
+            });
+        });
+    </script>
+}

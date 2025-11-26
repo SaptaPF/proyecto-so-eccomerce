@@ -1,0 +1,39 @@
+﻿@model Ecommerce.Dtos.CategoriaUpsertDto
+
+@{
+    ViewData["Title"] = (Model.CategoriaId == 0) ? "Crear Categoría" : "Editar Categoría";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <h1 class="text-3xl font-extrabold text-white mb-8">@ViewData["Title"]</h1>
+
+    <div class="max-w-2xl mx-auto bg-gray-800 rounded-lg shadow-lg p-8">
+        <form method="post" asp-action="Upsert">
+            <input asp-for="CategoriaId" hidden />
+            <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+
+            <div class="mb-4">
+                <label asp-for="Nombre" class="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
+                <input asp-for="Nombre" class="w-full bg-gray-700 border border-gray-600 rounded-md text-white px-3 py-2 focus:ring-accent focus:border-accent" />
+                <span asp-validation-for="Nombre" class="text-red-400 text-xs"></span>
+            </div>
+
+            <div class="mb-6">
+                <label asp-for="Descripcion" class="block text-sm font-medium text-gray-300 mb-2">Descripción</label>
+                <textarea asp-for="Descripcion" rows="3" class="w-full bg-gray-700 border border-gray-600 rounded-md text-white px-3 py-2 focus:ring-accent focus:border-accent"></textarea>
+                <span asp-validation-for="Descripcion" class="text-red-400 text-xs"></span>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a asp-action="Index" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500">Cancelar</a>
+                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-md hover:opacity-90">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

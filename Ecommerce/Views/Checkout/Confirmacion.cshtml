@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Pedido Confirmado";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 my-16 md:my-24">
+    <div class="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-lg text-center p-8 md:p-12">
+        <div class="w-24 h-24 bg-accent rounded-full flex items-center justify-center mx-auto">
+            <i class="fas fa-check fa-4x text-white"></i>
+        </div>
+
+        <h1 class="text-4xl font-extrabold text-white mt-8">¡Gracias por tu compra!</h1>
+
+        <p class="text-lg text-gray-300 mt-4">
+            Tu pedido ha sido procesado exitosamente.
+        </p>
+
+        <p class="text-xl font-semibold text-white mt-6">
+            Tu número de pedido es: <span class="text-accent">#@ViewBag.PedidoId</span>
+        </p>
+
+        <p class="text-gray-400 mt-4">
+            Pronto recibirás un correo electrónico (si lo hubiéramos implementado) con los detalles de tu orden.
+        </p>
+
+        <div class="mt-10">
+            <a asp-controller="Home" asp-action="Index" class="inline-block bg-accent text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:opacity-90 transition duration-300">
+                Volver a la tienda
+            </a>
+        </div>
+    </div>
+</div>

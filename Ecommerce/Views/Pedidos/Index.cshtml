@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Ecommerce.Dtos.PedidoListDto>
+
+@{
+    ViewData["Title"] = "Mis Pedidos";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <h1 class="text-3xl font-extrabold text-white mb-8">Historial de Pedidos</h1>
+
+    @if (Model.Any())
+    {
+        <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
+            <table class="w-full text-left text-gray-300">
+                <thead class="bg-gray-700 text-xs uppercase">
+                    <tr>
+                        <th class="px-6 py-3"># Pedido</th>
+                        <th class="px-6 py-3">Fecha</th>
+                        <th class="px-6 py-3">Total</th>
+                        <th class="px-6 py-3">Estado</th>
+                        <th class="px-6 py-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+                            <td class="px-6 py-4 font-medium text-white">@item.PedidoId</td>
+                            <td class="px-6 py-4">@item.FechaPedido.ToShortDateString()</td>
+                            <td class="px-6 py-4 font-bold text-accent">@item.TotalPedido.ToString("C")</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-bold rounded
+                                            @(item.Estado == "Completado" ? "bg-green-900 text-green-200" :
+                                                                            item.Estado == "Cancelado" ? "bg-red-900 text-red-200" :
+                                                                            "bg-yellow-900 text-yellow-200")">
+                            @item.Estado
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-action="Details" asp-route-id="@item.PedidoId"
+                           class="text-accent hover:underline">Ver Detalles</a>
+                    </td>
+                </tr>
+                                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-12 bg-gray-800 rounded-lg">
+            <i class="fas fa-box-open fa-3x text-gray-600 mb-4"></i>
+            <h3 class="text-xl text-white">Aún no has realizado pedidos.</h3>
+            <a asp-controller="Productos" asp-action="Index" class="mt-4 inline-block text-accent hover:underline">
+                Ir a comprar
+            </a>
+        </div>
+    }
+</div>

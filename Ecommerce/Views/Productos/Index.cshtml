@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Ecommerce.Dtos.ProductoDto>
+
+@{
+    ViewData["Title"] = "Catálogo de Productos";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <h1 class="text-3xl font-extrabold text-white mb-8">@ViewData["Title"]</h1>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- 2. Grilla de productos con Tailwind -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <!-- 3. Bucle de productos -->
+            @foreach (var producto in Model)
+            {
+                <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col">
+                    <div class="relative">
+                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        {
+                            <img class="w-full h-56 object-cover"
+                                 src="@producto.ImagenUrl.Replace("\\", "/")"
+                                 alt="@producto.Nombre">
+                        }
+                        else
+                        {
+                            <img class="w-full h-56 object-cover"
+                                 src="https://placehold.co/400x300/1F2937/00e0b0?text=@producto.Nombre"
+                                 alt="@producto.Nombre">
+                        }
+                    </div>
+
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-lg font-semibold text-white truncate">@producto.Nombre</h3>
+
+                        <!-- 4. Sección de Puntuación (Dinámica) -->
+                        <div class="flex items-center mt-2">
+                            @await Html.PartialAsync("_RatingStarsPartial", producto.AverageRating)
+                            <span class="ml-2 text-sm text-gray-400">(@producto.ReviewCount)</span>
+                        </div>
+
+                        <!-- 5. Precio -->
+                        <div class="mt-4 flex items-baseline justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-white">@producto.Precio.ToString("C")</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Botones (Detalles y Carrito) -->
+                        <div class="mt-6 flex gap-2">
+                            <a asp-controller="Productos"
+                               asp-action="Details"
+                               asp-route-id="@producto.ProductoId"
+                               class="flex-1 text-center bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 text-sm">
+                                Ver Detalles
+                            </a>
+
+                            <!--
+                                ¡ESTE ES EL BOTÓN IMPORTANTE!
+                                El script global en _Layout.cshtml lo encontrará.
+                            -->
+                            <button data-producto-id="@producto.ProductoId"
+                                    class="btn-add-to-cart flex-1 text-center bg-accent text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition duration-300 text-sm">
+                                <i class="fas fa-cart-plus mr-2"></i>Añadir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- 7. Mensaje si no hay productos -->
+        <div class="bg-gray-800 text-center p-8 rounded-lg">
+            <h3 class="text-xl text-white">No hay productos disponibles</h3>
+            <p class="text-gray-400 mt-2">Vuelve a intentarlo más tarde.</p>
+        </div>
+    }
+</div>

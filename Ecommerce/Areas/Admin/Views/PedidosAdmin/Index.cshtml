@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Ecommerce.Dtos.PedidoListDto>
+
+@{
+    ViewData["Title"] = "Lista de Pedidos";
+}
+
+<div class="container mx-auto px-4 mt-8">
+    <h1 class="text-3xl font-bold text-white mb-8">Pedidos Recientes</h1>
+
+    <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
+        <table class="w-full text-left text-gray-300">
+            <thead class="bg-gray-700 text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-3">ID</th>
+                    <th class="px-6 py-3">Fecha</th>
+                    <th class="px-6 py-3">Cliente</th>
+                    <th class="px-6 py-3">Total</th>
+                    <th class="px-6 py-3">Estado</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="border-b border-gray-700 hover:bg-gray-700">
+                        <td class="px-6 py-4">#@item.PedidoId</td>
+                        <td class="px-6 py-4">@item.FechaPedido.ToShortDateString()</td>
+                        <td class="px-6 py-4">@item.UsuarioEmail</td>
+                        <td class="px-6 py-4 font-bold text-accent">@item.TotalPedido.ToString("C")</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs font-bold rounded
+                                    @(item.Estado == "Completado" ? "bg-green-900 text-green-200" :
+                                                                    item.Estado == "Cancelado" ? "bg-red-900 text-red-200" :
+                                                                    "bg-yellow-900 text-yellow-200")">
+                            @item.Estado
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a asp-action="Details" asp-route-id="@item.PedidoId" class="text-accent hover:underline">Ver Detalles</a>
+                    </td>
+                </tr>
+                                }
+            </tbody>
+        </table>
+    </div>
+</div>

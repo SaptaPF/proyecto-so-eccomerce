@@ -1,0 +1,373 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- El título ahora es dinámico -->
+    <title>@ViewData["Title"] - Smart Buy</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            '900': '#111111', // Fondo principal
+                            '800': '#1a1a1a', // Fondo de tarjetas
+                            '700': '#2a2a2a', // Bordes
+                        },
+                        accent: {
+                            'DEFAULT': '#00e0b0', // Verde menta
+                            'hover': '#00c49b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome CDN (para estrellas y otros iconos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #fff; /* Fallback */
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark body {
+            background-color: #111111; /* Color principal 'dark.900' */
+        }
+
+        .text-accent {
+            color: #00e0b0;
+        }
+
+        .bg-accent {
+            background-color: #00e0b0;
+            color: #111111;
+        }
+
+            .bg-accent:hover {
+                background-color: #00c49b;
+            }
+
+        .border-accent {
+            border-color: #00e0b0;
+        }
+
+        .focus\:ring-accent:focus {
+            --tw-ring-color: #00e0b0;
+        }
+
+        .focus\:border-accent:focus {
+            --tw-border-color: #00e0b0;
+        }
+
+        .focus\:ring-accent:focus {
+            ring-color: #00e0b0;
+        }
+
+        .checked\:bg-accent:checked {
+            background-color: #00e0b0;
+        }
+
+        .bg-gray-800 {
+            background-color: #1a1a1a;
+        }
+
+        .bg-gray-900 {
+            background-color: #111111;
+        }
+
+        .border-gray-800 {
+            border-color: #1a1a1a;
+        }
+
+        .border-gray-700 {
+            border-color: #2a2a2a;
+        }
+
+        #logoutForm button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        /* Estilo para el botón cuando está cargando */
+        .btn-loading {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="dark bg-gray-900 text-gray-200">
+    @{
+        // 1. Capturamos dónde estamos parados
+        var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+
+        // 2. Definimos los estilos para "Activo" e "Inactivo" para no repetir código
+        string activeClass = "border-accent text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium";
+        string inactiveClass = "border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium";
+    }
+
+    <!-- 1. BARRA DE NAVEGACIÓN -->
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo y Enlaces -->
+                <div class="flex items-center">
+                    <a asp-controller="Home" asp-action="Index" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-bolt text-accent text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-white">Smart Buy</span>
+                    </a>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+
+                        <!-- ENLACE: HOME -->
+                        <a asp-area="" asp-controller="Home" asp-action="Index"
+                           class="@(currentController == "Home" && currentAction == "Index" ? activeClass : inactiveClass)">
+                            Home
+                        </a>
+
+                        <a asp-area="" asp-controller="Productos" asp-action="Index"
+                           class="@(currentController == "Productos" ? activeClass : inactiveClass)">
+                            Productos
+                        </a>
+
+                        <a asp-area="" asp-controller="Home" asp-action="Categorias"
+                           class="@(currentController == "Home" && currentAction == "Categorias" ? activeClass : inactiveClass)">
+                            Categorías
+                        </a>
+
+                        <a href="#" class="@inactiveClass">Ofertas</a>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-area="" asp-controller="Pedidos" asp-action="Index"
+                               class="@(currentController == "Pedidos" ? activeClass : inactiveClass)">
+                                Mis Pedidos
+                            </a>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                               class="border-transparent text-red-500 hover:border-red-500 hover:text-red-400 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-bold transition duration-300">
+                                <i class="fas fa-user-shield mr-2"></i> Admin
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- ... (El resto de la barra: Buscador e Iconos) sigue igual ... -->
+                <div class="flex-1 max-w-lg mx-4 hidden sm:block">
+                    <!-- ... Tu buscador ... -->
+                    <form asp-area="" asp-controller="Productos" asp-action="Index" method="get" class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-500"></i>
+                        </div>
+                        <input type="search" name="busqueda" value="@ViewData["BusquedaActual"]"
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-md leading-5 bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-accent focus:border-accent sm:text-sm"
+                               placeholder="Buscar productos...">
+                    </form>
+                </div>
+
+                <div class="flex items-center">
+                    <a asp-area="" asp-controller="Carrito" asp-action="Index" id="cart-button" class="relative p-1 rounded-full text-gray-400 hover:text-white focus:outline-none">
+                        <i class="fas fa-shopping-cart fa-lg"></i>
+                        <span id="cart-item-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
+                    </a>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- EL "AGUJERO" DONDE SE INSERTARÁ EL CONTENIDO DE LA PÁGINA -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+
+    <!-- 6. FOOTER (AHORA ES GLOBAL) -->
+    <footer class="bg-gray-800 mt-16 md:mt-24">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- ... (todo el contenido del footer va aquí) ... -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Columna 1: Logo y Redes -->
+                <div>
+                    <a asp-controller="Home" asp-action="Index" class="flex items-center">
+                        <i class="fas fa-bolt text-accent text-2xl mr-2"></i>
+                        <span class="font-bold text-xl text-white">Smart Buy</span>
+                    </a>
+                    <p class="mt-4 text-gray-400 text-sm">
+                        Tu tienda de confianza para los mejores gadgets y accesorios tecnológicos.
+                    </p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <!-- Columnas 2, 3, 4: Enlaces Estáticos -->
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Productos</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Audio</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Gaming</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Smart Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Accesorios PC</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Empresa</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Sobre Nosotros</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Contacto</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Envíos</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Devoluciones</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-white uppercase tracking-wider">Ayuda</h5>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Centro de Ayuda</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Privacidad</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm">Términos</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-500 text-sm">
+                    &copy; @DateTime.Now.Year Smart Buy. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- SCRIPT DEL CARRITO (AHORA ES GLOBAL) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- Elementos del DOM ---
+            const cartCountElement = document.getElementById('cart-item-count');
+            // Detecta si el usuario está logueado (buscando el botón de logout)
+            const userIsLoggedIn = document.getElementById('logout') !== null;
+
+            // --- 1. FUNCIÓN: Actualizar el contador del carrito ---
+            async function updateCartCount() {
+                if (!userIsLoggedIn) {
+                    cartCountElement.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/carrito/count');
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.count > 0) {
+                            cartCountElement.textContent = data.count;
+                            cartCountElement.style.display = 'flex';
+                        } else {
+                            cartCountElement.style.display = 'none';
+                        }
+                    } else if (response.status === 401) {
+                        cartCountElement.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error al obtener el conteo del carrito:', error);
+                }
+            }
+
+            // --- 2. FUNCIÓN: Manejar el clic en "Añadir al Carrito" ---
+            // Esta función se asociará dinámicamente
+            async function handleAddToCart(event) {
+                if (!event.target.classList.contains('btn-add-to-cart')) {
+                    return; // No fue el botón que buscamos
+                }
+
+                event.preventDefault();
+
+                if (!userIsLoggedIn) {
+                    window.location.href = '/Identity/Account/Login';
+                    return;
+                }
+
+                const button = event.target;
+                const productoId = button.dataset.productoId;
+
+                const payload = {
+                    productoId: parseInt(productoId),
+                    cantidad: 1
+                };
+
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Añadiendo...';
+
+                try {
+                    const response = await fetch('/api/carrito/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        if (data.nuevoConteo > 0) {
+                            cartCountElement.textContent = data.nuevoConteo;
+                            cartCountElement.style.display = 'flex';
+                        }
+
+                        button.innerHTML = '<i class="fas fa-check mr-2"></i> ¡Añadido!';
+
+                        setTimeout(() => {
+                            button.innerHTML = originalHtml;
+                            button.disabled = false;
+                            button.classList.remove('btn-loading');
+                        }, 2000);
+
+                    } else if (response.status === 401) {
+                        window.location.href = '/Identity/Account/Login';
+                    } else {
+                        throw new Error('Error al añadir el producto');
+                    }
+                } catch (error) {
+                    console.error('Error en fetch al añadir al carrito:', error);
+                    button.innerHTML = 'Error';
+                }
+            }
+
+            // --- 3. INICIALIZACIÓN ---
+
+            // En lugar de buscar botones, escuchamos clics en todo el documento
+            // Esto funcionará incluso si los productos se cargan dinámicamente
+            document.addEventListener('click', handleAddToCart);
+
+            // Llama a la función de conteo al cargar la página
+            updateCartCount();
+        });
+    </script>
+
+    <!-- Este es un placeholder para scripts específicos de cada página (ej. validación en Register.cshtml) -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

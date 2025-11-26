@@ -1,0 +1,123 @@
+﻿@model IEnumerable<Ecommerce.Models.Producto>
+
+@{
+    ViewData["Title"] = "Gestionar Productos";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-white">
+            @ViewData["Title"]
+        </h1>
+        <!-- Botón para ir a la página de "Crear" -->
+        <a asp-area="Admin" asp-controller="ProductosAdmin" asp-action="Upsert"
+           class="inline-block bg-accent text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:opacity-90 transition duration-300">
+            <i class="fas fa-plus mr-2"></i> Crear Nuevo Producto
+        </a>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <table class="w-full text-left text-gray-300">
+            <thead class="bg-gray-700 text-xs text-gray-300 uppercase">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Nombre</th>
+                    <th scope="col" class="px-6 py-3">Precio</th>
+                    <th scope="col" class="px-6 py-3">Stock</th>
+                    <th scope="col" class="px-6 py-3 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var producto in Model)
+                {
+                    <tr class="bg-gray-800 border-b border-gray-700">
+                        <td class="px-6 py-4 font-medium text-white">
+                            @producto.Nombre
+                        </td>
+                        <td class="px-6 py-4">
+                            @producto.Precio.ToString("C")
+                        </td>
+                        <td class="px-6 py-4">
+                            @producto.Stock
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <!-- Botón para Editar -->
+                            <a asp-action="Upsert" asp-route-id="@producto.ProductoId"
+                               class="font-medium text-accent hover:underline mr-4">Editar</a>
+
+                            <!-- Botón para Eliminar (con JS) -->
+                            <button data-id="@producto.ProductoId"
+                                    class="btn-delete font-medium text-red-500 hover:underline">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- CDN de SweetAlert2 para popups bonitos de confirmación -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Escuchar clics en cualquier botón de eliminar
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const productoId = this.dataset.id;
+                    const row = this.closest('tr'); // La fila de la tabla
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡No podrás revertir esto!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#00e0b0', // Color accent
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, ¡eliminar!',
+                        cancelButtonText: 'Cancelar',
+                        background: '#1a1a1a', // bg-gray-800
+                        color: '#e5e7eb' // text-gray-200
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Si confirma, llamar a nuestra API de DELETE
+                            fetch(`/Admin/ProductosAdmin/Delete/${productoId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    // El AntiForgeryToken es necesario si lo tienes configurado,
+                                    // pero para un DELETE simple lo omitimos por ahora.
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: '¡Eliminado!',
+                                        text: data.message,
+                                        icon: 'success',
+                                        background: '#1a1a1a',
+                                        color: '#e5e7eb'
+                                    });
+                                    // Eliminar la fila de la tabla en el UI
+                                    row.remove();
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: data.message,
+                                        icon: 'error',
+                                        background: '#1a1a1a',
+                                        color: '#e5e7eb'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

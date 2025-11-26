@@ -1,0 +1,82 @@
+﻿@model Ecommerce.Dtos.PedidoDetailViewModel
+
+@{
+    ViewData["Title"] = $"Pedido #{Model.PedidoId}";
+}
+
+<div class="container mx-auto px-4 mt-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-white">Pedido #@Model.PedidoId</h1>
+        <a asp-action="Index" class="text-gray-400 hover:text-white">&larr; Volver a la lista</a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+
+            <div class="bg-gray-800 rounded-lg p-6 shadow">
+                <h3 class="text-xl font-semibold text-white mb-4">Artículos</h3>
+                <table class="w-full text-gray-300">
+                    <thead>
+                        <tr class="text-sm border-b border-gray-700">
+                            <th class="text-left py-2">Producto</th>
+                            <th class="text-center py-2">Cant.</th>
+                            <th class="text-right py-2">Precio</th>
+                            <th class="text-right py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="border-b border-gray-700">
+                                <td class="py-3 text-white">@item.ProductoNombre</td>
+                                <td class="py-3 text-center">@item.Cantidad</td>
+                                <td class="py-3 text-right">@item.PrecioUnitario.ToString("C")</td>
+                                <td class="py-3 text-right font-bold">@item.Subtotal.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="flex justify-end mt-4">
+                    <div class="text-2xl font-bold text-accent">
+                        Total: @Model.TotalPedido.ToString("C")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-gray-800 rounded-lg p-6 shadow">
+                <h3 class="text-lg font-semibold text-white mb-4">Detalles del Cliente</h3>
+                <p class="text-gray-400"><span class="block text-sm text-gray-500">Nombre:</span> @Model.UsuarioNombre</p>
+                <p class="text-gray-400 mt-2"><span class="block text-sm text-gray-500">Email:</span> @Model.UsuarioEmail</p>
+                <p class="text-gray-400 mt-2"><span class="block text-sm text-gray-500">Fecha:</span> @Model.FechaPedido</p>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg p-6 shadow">
+                <h3 class="text-lg font-semibold text-white mb-4">Dirección de Envío</h3>
+                <p class="text-gray-300">@Model.DireccionEnvio</p>
+            </div>
+
+            <div class="bg-gray-700 rounded-lg p-6 shadow border border-gray-600">
+                <h3 class="text-lg font-semibold text-white mb-4">Estado del Pedido</h3>
+                <div class="mb-4">
+                    <span class="text-2xl font-bold text-accent">@Model.Estado</span>
+                </div>
+
+                <form asp-action="CambiarEstado" method="post">
+                    <input type="hidden" name="pedidoId" value="@Model.PedidoId" />
+                    <label class="block text-sm text-gray-400 mb-2">Cambiar estado a:</label>
+                    <select name="nuevoEstado" class="w-full bg-gray-800 border border-gray-600 text-white rounded p-2 mb-3">
+                        <option value="Procesando">Procesando</option>
+                        <option value="Enviado">Enviado</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                    <button type="submit" class="w-full bg-accent text-black font-bold py-2 rounded hover:opacity-90">
+                        Actualizar Estado
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

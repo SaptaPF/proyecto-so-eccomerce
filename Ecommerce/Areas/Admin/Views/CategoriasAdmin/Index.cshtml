@@ -1,0 +1,71 @@
+﻿@model IEnumerable<Ecommerce.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Gestionar Categorías";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-white">@ViewData["Title"]</h1>
+        <a asp-action="Upsert" class="bg-accent text-white font-bold py-2 px-4 rounded-lg shadow hover:opacity-90 transition">
+            <i class="fas fa-plus mr-2"></i> Nueva Categoría
+        </a>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <table class="w-full text-left text-gray-300">
+            <thead class="bg-gray-700 text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-3">Nombre</th>
+                    <th class="px-6 py-3">Descripción</th>
+                    <th class="px-6 py-3 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+                        <td class="px-6 py-4 font-medium text-white">@item.Nombre</td>
+                        <td class="px-6 py-4">@item.Descripcion</td>
+                        <td class="px-6 py-4 text-right">
+                            <a asp-action="Upsert" asp-route-id="@item.CategoriaId" class="text-accent hover:underline mr-4">Editar</a>
+                            <button onclick="Delete('/Admin/CategoriasAdmin/Delete/@item.CategoriaId', this)" class="text-red-500 hover:underline">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function Delete(url, btn) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#00e0b0',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                background: '#1a1a1a',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(url, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({ title: 'Eliminado', text: data.message, icon: 'success', background: '#1a1a1a', color: '#fff' });
+                                btn.closest('tr').remove();
+                            } else {
+                                Swal.fire({ title: 'Error', text: data.message, icon: 'error', background: '#1a1a1a', color: '#fff' });
+                            }
+                        });
+                }
+            })
+        }
+    </script>
+}
