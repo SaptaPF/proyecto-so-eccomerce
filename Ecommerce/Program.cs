@@ -8,7 +8,7 @@ using Ecommerce.Services.Implementation;
 using Ecommerce.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+//HOLA SOY ABDAL Kappa
 var builder = WebApplication.CreateBuilder(args);
 //variables de entorno dentro del docker
 Env.Load("/app/myapp.env");
