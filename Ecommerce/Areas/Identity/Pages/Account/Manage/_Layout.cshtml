@@ -1,5 +1,5 @@
 ﻿@{
-    // 1. ESTA LÍNEA ES LA CLAVE: Forzamos el uso de tu layout principal oscuro
+    // FORZAMOS EL USO DE TU LAYOUT PRINCIPAL
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,6 +12,7 @@
 
     <div class="flex flex-col lg:flex-row gap-8">
 
+        <!-- COLUMNA IZQUIERDA: MENÚ LATERAL -->
         <div class="w-full lg:w-1/4">
             <div class="bg-gray-800 rounded-lg shadow-lg p-4 sticky top-24 border border-gray-700">
                 <nav class="space-y-1">
@@ -20,10 +21,10 @@
             </div>
         </div>
 
+        <!-- COLUMNA DERECHA: CONTENIDO DEL FORMULARIO -->
         <div class="w-full lg:w-3/4">
-            <div class="bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-700">
-                @RenderBody()
-            </div>
+            <!-- Aquí se renderiza el Index.cshtml (el formulario) -->
+            @RenderBody()
         </div>
 
     </div>
