@@ -40,28 +40,29 @@ namespace Ecommerce.Controllers
             var homeViewModel = new HomeViewModel();
 
             // --- 1. Lógica para "Producto del Mes" (Hero) ---
-            // ESTRATEGIA: El más vendido (contando cantidad en DetallesPedido)
 
-            // Obtenemos productos con sus detalles de pedido y reseñas
             var todosProductos = await _unitOfWork.ProductoRepository.GetAllAsync(
                 includeProperties: "DetallesPedido,Resenas,ProductoCategorias.Categoria"
             );
 
-            // Ordenamos en memoria por la suma de cantidades vendidas
+            // Ordenamos por cantidad total vendida
             var productoMesEntidad = todosProductos
                 .OrderByDescending(p => p.DetallesPedido.Sum(dp => dp.Cantidad))
                 .FirstOrDefault();
 
-            // Fallback: Si no hay ventas aún, mostramos el producto más caro (Premium)
+            // Fallback
             if (productoMesEntidad == null || !productoMesEntidad.DetallesPedido.Any())
             {
                 productoMesEntidad = todosProductos.OrderByDescending(p => p.Precio).FirstOrDefault();
             }
 
-            // Mapeamos si encontramos algo
             if (productoMesEntidad != null)
             {
                 homeViewModel.ProductoDelMes = _mapper.Map<ProductoDto>(productoMesEntidad);
+
+                // --- AQUÍ CALCULAMOS EL DATO REAL ---
+                // Sumamos la cantidad de este producto en todos los pedidos
+                homeViewModel.ProductoDelMes.TotalVentas = productoMesEntidad.DetallesPedido.Sum(dp => dp.Cantidad);
             }
 
 

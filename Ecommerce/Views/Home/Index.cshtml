@@ -46,7 +46,14 @@
                     </div>
                     <div>
                         <div class="text-2xl font-bold">
-                            @((heroProducto.ReviewCount * 12) + 50)+ <!-- Truco visual -->
+                            @if (heroProducto.TotalVentas > 1000)
+                            {
+                                <span>@((heroProducto.TotalVentas / 1000).ToString("0.0"))K+</span>
+                            }
+                            else
+                            {
+                                <span>@heroProducto.TotalVentas</span>
+                            }
                         </div>
                         <div class="text-sm text-gray-400">Ventas</div>
                     </div>

@@ -16,6 +16,7 @@ namespace Ecommerce.Dtos
         public List<string> NombresCategorias { get; set; } = new List<string>();
         public double AverageRating { get; set; }
         public int ReviewCount { get; set; }
+        public int TotalVentas { get; set; } 
         public string? ImagenUrl { get; set; }
         public List<ResenaDto> Resenas { get; set; } = new List<ResenaDto>();
     }
