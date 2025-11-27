@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Finalizar Compra";
+    // Convertimos el total a string con formato punto decimal para JS (ej. "100.50")
+    // PayPal suele requerir USD, EUR, etc. Si usas PEN, asegúrate que tu cuenta lo soporte o cambia la moneda.
+    string totalParaPayPal = Model.Carrito.TotalGeneral.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
 }
 
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16">
@@ -9,14 +12,12 @@
 
     <div class="flex flex-col lg:flex-row gap-12">
 
-        <!-- Columna Izquierda: Formularios de Dirección y Pago -->
+        <!-- Columna Izquierda: Direcciones -->
         <div class="w-full lg:w-2/3">
 
-            <!--
-                FORMULARIO 1: EL FORMULARIO PRINCIPAL PARA CREAR EL PEDIDO
-            -->
-            <!-- NOTA: Este formulario ahora SOLO envuelve la selección y el botón de pago -->
-            <form asp-controller="Checkout" asp-action="PlaceOrder" method="post">
+            <!-- FORMULARIO 1: CREAR PEDIDO -->
+            <!-- Le ponemos un ID 'order-form' para poder enviarlo desde JS -->
+            <form id="order-form" asp-controller="Checkout" asp-action="PlaceOrder" method="post">
                 @Html.AntiForgeryToken()
 
                 <!-- Sección 1: Direcciones Guardadas -->
@@ -27,12 +28,10 @@
                     {
                         <fieldset class="space-y-4">
                             <legend class="sr-only">Direcciones</legend>
-
                             @foreach (var direccion in Model.DireccionesGuardadas)
                             {
                                 <div class="relative flex items-start bg-gray-700 p-4 rounded-lg border border-gray-600">
                                     <div class="flex items-center h-5">
-                                        <!-- Botón de Radio para seleccionar -->
                                         <input id="direccion-@direccion.DireccionId" name="direccionId" type="radio" value="@direccion.DireccionId" class="focus:ring-accent h-4 w-4 text-accent border-gray-500 bg-gray-600" checked="@(Model.DireccionesGuardadas.First() == direccion ? "checked" : null)">
                                     </div>
                                     <div class="ml-3 text-sm">
@@ -48,38 +47,28 @@
                     else
                     {
                         <p class="text-gray-400">No tienes direcciones guardadas. Por favor, añade una nueva.</p>
+                        <!-- Campo oculto para validación si no hay dirección -->
+                        <input type="hidden" id="no-address-flag" value="true" />
                     }
                 </div>
 
                 <!--
-                    Este botón de "Pagar" está DENTRO del Formulario 1
+                   CAMBIO: Ya no mostramos el botón de "Confirmar" directamente aquí.
+                   Los botones de PayPal estarán en la columna derecha (Resumen).
                 -->
-                <div class="mt-8 pt-8 border-t border-gray-700">
-                    <button type="submit" class="w-full flex items-center justify-center rounded-md border border-transparent bg-accent px-6 py-3 text-base font-bold text-white shadow-sm hover:opacity-90 transition duration-300">
-                        Confirmar y Pagar
-                    </button>
-                </div>
 
             </form>
-            <!-- ¡FIN DEL FORMULARIO 1! -->
-            <!--
-                FORMULARIO 2: AÑADIR NUEVA DIRECCIÓN
-                (Ahora está FUERA del Formulario 1, como debe ser)
-            -->
+
+            <!-- FORMULARIO 2: NUEVA DIRECCIÓN -->
             <h3 class="text-xl font-semibold text-white mt-8 mb-4">O Añadir Nueva Dirección</h3>
-            <!-- Corrección: 'classs' cambiado a 'class' -->
             <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-                <!-- Este formulario postea a la acción "Index" de este controlador -->
                 <form asp-controller="Checkout" asp-action="Index" method="post" class="space-y-4">
                     @Html.AntiForgeryToken()
-
-                    <!-- Usamos 'NuevaDireccion' que es una propiedad de nuestro ViewModel -->
                     <div>
                         <label asp-for="NuevaDireccion.Calle" class="block text-sm font-medium text-gray-300">Calle y Número</label>
                         <input asp-for="NuevaDireccion.Calle" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-accent focus:border-accent" />
                         <span asp-validation-for="NuevaDireccion.Calle" class="text-red-400 text-sm"></span>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label asp-for="NuevaDireccion.Ciudad" class="block text-sm font-medium text-gray-300">Ciudad</label>
@@ -97,7 +86,6 @@
                             <span asp-validation-for="NuevaDireccion.CodigoPostal" class="text-red-400 text-sm"></span>
                         </div>
                     </div>
-
                     <div class="pt-4 text-right">
                         <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
                             Guardar Dirección
@@ -105,11 +93,9 @@
                     </div>
                 </form>
             </div>
-            <!-- FIN DEL FORMULARIO 2 -->
-
         </div>
 
-        <!-- Columna Derecha: Resumen del Pedido -->
+        <!-- Columna Derecha: Resumen y PAGO -->
         <div class="w-full lg:w-1/3">
             <div class="bg-gray-800 rounded-lg shadow-lg p-6 sticky top-24">
                 <h2 class="text-lg font-medium text-white">Resumen del Pedido</h2>
@@ -141,6 +127,13 @@
                         <dd class="text-accent">@Model.Carrito.TotalGeneral.ToString("C")</dd>
                     </div>
                 </dl>
+
+                <!-- AQUÍ VAN LOS BOTONES DE PAGO -->
+                <div class="mt-8">
+                    <!-- Contenedor para PayPal -->
+                    <div id="paypal-button-container"></div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -148,7 +141,75 @@
 
 @section Scripts {
     @{
-        // Incluimos los scripts de validación de ASP.NET
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <!--
+       1. SCRIPT DE PAYPAL
+       Reemplaza 'sb' (Sandbox) por tu Client ID real de PayPal Developer.
+       IMPORTANTE: currency=USD porque PayPal a veces da problemas con monedas locales en modo prueba.
+       Si quieres usar PEN, cambia currency=PEN (y asegúrate que tu cuenta sandbox lo soporte).
+    -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AQjPuFRT2L4FGyBo14zHyZd_Ip4maf8aDFb1Qy72fTAYnJuyGqygS_OBPIol91SSBzyDxbUOVb6OuLCT&currency=USD"></script>
+
+    <script>
+        // Obtenemos el total desde C# para usarlo en JS
+        const totalAmount = "@totalParaPayPal";
+
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color:  'gold',
+                shape:  'rect',
+                label:  'paypal'
+            },
+
+            // 1. Crear la orden en PayPal
+            createOrder: function(data, actions) {
+                // Validar que haya una dirección seleccionada antes de abrir PayPal
+                const selectedAddress = document.querySelector('input[name="direccionId"]:checked');
+                const noAddressFlag = document.getElementById('no-address-flag');
+
+                if (!selectedAddress && !noAddressFlag) { // Si hay direcciones pero ninguna seleccionada
+                     alert("Por favor selecciona una dirección de envío.");
+                     return; // Detiene el proceso
+                }
+                if (noAddressFlag) {
+                     alert("Por favor añade una dirección de envío primero.");
+                     return;
+                }
+
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: totalAmount // El precio total de tu carrito
+                        }
+                    }]
+                });
+            },
+
+            // 2. Cuando el usuario paga exitosamente en el popup
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+
+                    // Muestra un mensaje de éxito (opcional)
+                    // alert('Pago completado por ' + details.payer.name.given_name);
+
+                    // 3. MAGIA: Enviar el formulario de nuestro backend
+                    // Esto llamará a CheckoutController.PlaceOrder y guardará el pedido en la BD
+                    document.getElementById('order-form').submit();
+                });
+            },
+
+            // 3. Si el usuario cancela o hay error
+            onCancel: function (data) {
+                console.log("Pago cancelado");
+            },
+            onError: function (err) {
+                console.error("Error en PayPal", err);
+                alert("Hubo un error al procesar el pago con PayPal.");
+            }
+
+        }).render('#paypal-button-container');
+    </script>
 }
