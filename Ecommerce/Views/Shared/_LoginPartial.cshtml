@@ -8,12 +8,6 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="relative">
-            <a class="text-gray-400 hover:text-white transition duration-300 mr-4"
-               asp-controller="Pedidos" asp-action="Index">
-                Mis Pedidos
-            </a>
-        </li>
-        <li class="relative">
             <a id="manage" class="text-gray-400 hover:text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 Hola, @UserManager.GetUserName(User)!
             </a>
