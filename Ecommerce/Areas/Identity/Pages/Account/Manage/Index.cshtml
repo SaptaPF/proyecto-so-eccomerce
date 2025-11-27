@@ -5,55 +5,86 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3 class="text-2xl font-bold text-white mb-6 flex items-center">
-    <i class="fas fa-user-circle mr-3 text-accent"></i> @ViewData["Title"]
-</h3>
+<div class="mb-8">
+    <h3 class="text-2xl font-bold text-white flex items-center">
+        <i class="fas fa-user-circle text-accent mr-3"></i> @ViewData["Title"]
+    </h3>
+    <p class="text-gray-400 mt-1 text-sm">Actualiza tu información de contacto.</p>
+</div>
 
 <partial name="_StatusMessage" for="StatusMessage" />
 
-<div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
+    <div class="p-6 md:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        <div>
-            <form id="profile-form" method="post" class="space-y-5">
+            <div>
+                <form id="profile-form" method="post" class="space-y-6">
 
-                <div asp-validation-summary="ModelOnly" class="p-4 mb-4 text-sm text-red-400 bg-gray-900 rounded-lg border border-red-800" role="alert"></div>
+                    <div asp-validation-summary="ModelOnly" class="p-4 mb-4 text-sm text-red-400 bg-red-900/20 rounded-lg border border-red-800" role="alert"></div>
 
-                <div>
-                    <label asp-for="Username" class="block text-sm font-medium text-gray-400 mb-1">Nombre de Usuario</label>
-                    <div class="relative">
-                        <input asp-for="Username" class="block w-full pl-4 pr-10 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed sm:text-sm" disabled />
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-gray-500"></i>
+                    <div>
+                        <label asp-for="Username" class="block text-sm font-medium text-gray-300 mb-2">Nombre de Usuario / Email</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-500"></i>
+                            </div>
+                            <input asp-for="Username" class="block w-full pl-10 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-gray-400 focus:ring-0 cursor-not-allowed sm:text-sm" disabled />
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-500" title="No se puede cambiar"></i>
+                            </div>
                         </div>
+                        <p class="mt-1 text-xs text-gray-500">El nombre de usuario no se puede cambiar.</p>
+                    </div>
+
+                    <div>
+                        <label asp-for="Input.PhoneNumber" class="block text-sm font-medium text-gray-300 mb-2">Número de Teléfono</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-phone text-gray-400"></i>
+                            </div>
+                            <input asp-for="Input.PhoneNumber" class="block w-full pl-10 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200 sm:text-sm" placeholder="+51 999 999 999" />
+                        </div>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div class="pt-4">
+                        <button id="update-profile-button" type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-gray-900 bg-accent hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-300 transform hover:-translate-y-0.5">
+                            <i class="fas fa-save mr-2 mt-0.5"></i> Guardar Cambios
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="hidden lg:flex flex-col items-center justify-center text-center p-8 bg-gray-900/50 rounded-xl border border-gray-700 border-dashed">
+                <div class="relative">
+                    <div class="w-32 h-32 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full flex items-center justify-center mb-4 text-accent border-4 border-gray-800 shadow-xl">
+                        <span class="text-5xl font-bold select-none">
+                            @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                        </span>
+                    </div>
+                    <div class="absolute bottom-2 right-2 w-8 h-8 bg-green-500 border-4 border-gray-900 rounded-full" title="Cuenta Activa"></div>
+                </div>
+
+                <h4 class="text-xl font-bold text-white mt-2">@User.Identity.Name</h4>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent mt-2 border border-accent/20">
+                    Cliente
+                </span>
+
+                <div class="mt-6 space-y-2 w-full max-w-xs">
+                    <div class="flex justify-between text-sm border-b border-gray-700 pb-2">
+                        <span class="text-gray-400">Estado de cuenta</span>
+                        <span class="text-green-400 font-medium">Activa</span>
+                    </div>
+                    <div class="flex justify-between text-sm border-b border-gray-700 pb-2">
+                        <span class="text-gray-400">Seguridad</span>
+                        <span class="text-yellow-400 font-medium">Normal</span>
                     </div>
                 </div>
-
-                <div>
-                    <label asp-for="Input.PhoneNumber" class="block text-sm font-medium text-gray-300 mb-1">Número de Teléfono</label>
-                    <input asp-for="Input.PhoneNumber" class="block w-full px-4 py-2.5 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200 sm:text-sm" placeholder="Ej: +51 999 999 999" />
-                    <span asp-validation-for="Input.PhoneNumber" class="text-red-400 text-xs mt-1 block"></span>
-                </div>
-
-                <div class="pt-2">
-                    <button id="update-profile-button" type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-gray-900 bg-accent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition duration-300">
-                        Guardar Cambios
-                    </button>
-                </div>
-
-            </form>
-        </div>
-
-        <div class="hidden lg:flex flex-col items-center justify-center text-center p-6 bg-gray-900/50 rounded-lg border border-gray-700 border-dashed">
-            <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-4 text-accent border-2 border-accent">
-                <span class="text-3xl font-bold">
-                    @User.Identity.Name?.Substring(0, 1).ToUpper()
-                </span>
             </div>
-            <h4 class="text-lg font-semibold text-white">@User.Identity.Name</h4>
-            <p class="text-gray-400 text-sm mt-2">Gestiona tu información personal y seguridad desde este panel.</p>
-        </div>
 
+        </div>
     </div>
 </div>
 
