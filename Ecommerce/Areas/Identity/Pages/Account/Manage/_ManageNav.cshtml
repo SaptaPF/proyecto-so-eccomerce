@@ -5,55 +5,55 @@
 }
 
 @{
-    string baseClass = "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 mb-1";
+    // Clase base
+    string baseClass = "group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 mb-1";
 
-    // Estilo cuando la pestaña está seleccionada (Borde verde, fondo oscuro)
-    string activeClass = "bg-gray-900 text-white border-l-4 border-accent";
+    // Estilo Activo (Borde verde, fondo más claro)
+    string activeClass = "bg-gray-700 text-white border-l-4 border-accent shadow-md";
 
-    // Estilo normal (Texto gris, hover gris)
+    // Estilo Inactivo
     string inactiveClass = "text-gray-300 hover:bg-gray-700 hover:text-white";
 
-    // Función helper para decidir qué clase usar
+    // Helper para detectar página activa
     string GetClass(string navPage)
     {
         var activePage = ViewContext.ViewData["ActivePage"] as string
             ?? System.IO.Path.GetFileNameWithoutExtension(ViewContext.ActionDescriptor.DisplayName);
-
         return string.Equals(activePage, navPage, StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass;
     }
 }
 
-<nav class="space-y-1">
+<nav>
     <a class="@baseClass @GetClass("Index")" id="profile" asp-page="./Index">
-        <i class="fas fa-user-circle mr-3 text-lg w-6 text-center"></i> Perfil
+        <i class="fas fa-user-circle w-6 text-center mr-3 text-lg"></i> Perfil
     </a>
 
     <a class="@baseClass @GetClass("Email")" id="email" asp-page="./Email">
-        <i class="fas fa-envelope mr-3 text-lg w-6 text-center"></i> Email
+        <i class="fas fa-envelope w-6 text-center mr-3 text-lg"></i> Email
     </a>
 
     <a class="@baseClass @GetClass("ChangePassword")" id="change-password" asp-page="./ChangePassword">
-        <i class="fas fa-key mr-3 text-lg w-6 text-center"></i> Contraseña
+        <i class="fas fa-key w-6 text-center mr-3 text-lg"></i> Contraseña
     </a>
 
     @if (hasExternalLogins)
     {
         <a class="@baseClass @GetClass("ExternalLogins")" id="external-login" asp-page="./ExternalLogins">
-            <i class="fab fa-google mr-3 text-lg w-6 text-center"></i> Logins Externos
+            <i class="fab fa-google w-6 text-center mr-3 text-lg"></i> Logins Externos
         </a>
     }
 
     <a class="@baseClass @GetClass("TwoFactorAuthentication")" id="two-factor" asp-page="./TwoFactorAuthentication">
-        <i class="fas fa-shield-alt mr-3 text-lg w-6 text-center"></i> Autenticación 2FA
+        <i class="fas fa-shield-alt w-6 text-center mr-3 text-lg"></i> Seguridad 2FA
     </a>
 
     <a class="@baseClass @GetClass("PersonalData")" id="personal-data" asp-page="./PersonalData">
-        <i class="fas fa-database mr-3 text-lg w-6 text-center"></i> Datos Personales
+        <i class="fas fa-database w-6 text-center mr-3 text-lg"></i> Datos Personales
     </a>
 
-    <div class="border-t border-gray-700 my-2 pt-2">
-        <a class="@baseClass text-accent hover:bg-gray-700" asp-controller="Pedidos" asp-action="Index">
-            <i class="fas fa-box-open mr-3 text-lg w-6 text-center"></i> Mis Pedidos
+    <div class="border-t border-gray-700 my-4 pt-4">
+        <a class="@baseClass text-accent hover:bg-gray-700 hover:text-white" asp-controller="Pedidos" asp-action="Index">
+            <i class="fas fa-box-open w-6 text-center mr-3 text-lg"></i> Ir a Mis Pedidos
         </a>
     </div>
 </nav>

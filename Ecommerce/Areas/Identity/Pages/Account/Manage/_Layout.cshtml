@@ -1,19 +1,19 @@
 ﻿@{
-    // Forzamos el uso de tu plantilla principal oscura
+    // 1. ESTA LÍNEA ES LA CLAVE: Forzamos el uso de tu layout principal oscuro
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16 mb-20">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-16 mb-24">
 
-    <div class="text-center md:text-left mb-8">
+    <div class="mb-8">
         <h1 class="text-3xl font-extrabold text-white">Tu Cuenta</h1>
-        <p class="text-gray-400">Gestiona tu perfil, seguridad y preferencias.</p>
+        <p class="text-gray-400 mt-1">Gestiona tu perfil y configuración de seguridad.</p>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8">
 
         <div class="w-full lg:w-1/4">
-            <div class="bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700 sticky top-24">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-4 sticky top-24 border border-gray-700">
                 <nav class="space-y-1">
                     <partial name="_ManageNav" />
                 </nav>
@@ -21,7 +21,9 @@
         </div>
 
         <div class="w-full lg:w-3/4">
-            @RenderBody()
+            <div class="bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-700">
+                @RenderBody()
+            </div>
         </div>
 
     </div>
