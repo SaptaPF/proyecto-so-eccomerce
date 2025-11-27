@@ -181,34 +181,64 @@ namespace Ecommerce.Areas.Admin.Controllers
             }
         }
 
+        // DELETE: /Admin/ProductosAdmin/Delete/5
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(id);
-            if (producto == null)
+            try
             {
-                return Json(new { success = false, message = "Error al borrar." });
-            }
-
-            // Borrar imagen del servidor si existe
-            if (!string.IsNullOrEmpty(producto.ImagenUrl))
-            {
-                string rutaPrincipal = _hostEnvironment.WebRootPath;
-                var rutaImagen = Path.Combine(rutaPrincipal, producto.ImagenUrl.TrimStart('\\'));
-                if (System.IO.File.Exists(rutaImagen))
+                var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(id);
+                if (producto == null)
                 {
-                    System.IO.File.Delete(rutaImagen);
+                    return Json(new { success = false, message = "Error: Producto no encontrado." });
                 }
+
+                // 1. Borrar imagen del servidor si existe (Lógica corregida para Linux/Windows)
+                if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                {
+                    string rutaPrincipal = _hostEnvironment.WebRootPath;
+
+                    // Limpiamos la URL de barras invertidas o normales iniciales
+                    var rutaRelativa = producto.ImagenUrl.TrimStart('/', '\\');
+
+                    // Reemplazamos las barras de la URL por el separador del sistema operativo actual
+                    // (Linux usará '/', Windows usará '\')
+                    rutaRelativa = rutaRelativa.Replace("/", Path.DirectorySeparatorChar.ToString())
+                                               .Replace("\\", Path.DirectorySeparatorChar.ToString());
+
+                    var rutaImagen = Path.Combine(rutaPrincipal, rutaRelativa);
+
+                    if (System.IO.File.Exists(rutaImagen))
+                    {
+                        System.IO.File.Delete(rutaImagen);
+                    }
+                }
+
+                // 2. Borrar relaciones de categorías
+                // (Esto es importante hacerlo antes de borrar el producto)
+                var categorias = await _unitOfWork.ProductoCategoriaRepository.GetAllAsync(pc => pc.ProductoId == id);
+                if (categorias != null)
+                {
+                    _unitOfWork.ProductoCategoriaRepository.RemoveRange(categorias);
+                }
+
+                // 3. Ahora sí, eliminar el producto
+                _unitOfWork.ProductoRepository.Remove(producto);
+
+                await _unitOfWork.SaveAsync();
+                return Json(new { success = true, message = "Producto eliminado exitosamente." });
             }
-
-            // Borrar relaciones de categorías
-            var categorias = await _unitOfWork.ProductoCategoriaRepository.GetAllAsync(pc => pc.ProductoId == id);
-            _unitOfWork.ProductoCategoriaRepository.RemoveRange(categorias);
-
-            _unitOfWork.ProductoRepository.Remove(producto);
-            await _unitOfWork.SaveAsync();
-
-            return Json(new { success = true, message = "Producto eliminado." });
+            catch (DbUpdateException)
+            {
+                // Este error ocurre si el producto ya fue comprado y está en la tabla 'DetallesPedido'
+                // La base de datos impide borrarlo para no romper el historial de pedidos.
+                return Json(new { success = false, message = "No se puede eliminar: El producto es parte de pedidos existentes." });
+            }
+            catch (Exception ex)
+            {
+                // Cualquier otro error (como permisos de archivo) caerá aquí y se mostrará en el SweetAlert
+                return Json(new { success = false, message = "Error inesperado: " + ex.Message });
+            }
         }
     }
 }
