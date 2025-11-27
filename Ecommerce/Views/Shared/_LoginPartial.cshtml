@@ -7,24 +7,32 @@
 <ul class="flex items-center space-x-4 ml-4">
     @if (SignInManager.IsSignedIn(User))
     {
+        <!--
+             ELIMINADO: Aquí estaba el enlace duplicado de "Mis Pedidos".
+             Ya lo tenemos en el menú principal del Layout.
+        -->
+
         <li class="relative">
-            <a id="manage" class="text-gray-400 hover:text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <a id="manage" class="text-gray-400 hover:text-white transition duration-300 font-medium"
+               asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 Hola, @UserManager.GetUserName(User)!
             </a>
         </li>
         <li>
             <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="text-gray-400 hover:text-white">Logout</button>
+                <button id="logout" type="submit" class="text-gray-400 hover:text-red-400 transition duration-300">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </form>
         </li>
     }
     else
     {
         <li>
-            <a class="text-gray-400 hover:text-white" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="text-gray-400 hover:text-white transition duration-300" id="register" asp-area="Identity" asp-page="/Account/Register">Registrarse</a>
         </li>
         <li>
-            <a class="text-gray-400 hover:text-white" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <a class="bg-accent text-black font-bold py-1 px-3 rounded hover:opacity-90 transition duration-300" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
         </li>
     }
 </ul>
