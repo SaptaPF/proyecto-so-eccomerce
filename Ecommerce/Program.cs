@@ -115,4 +115,16 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+var defaultCulture = new System.Globalization.CultureInfo("en-US"); // "es-PE" para Soles (S/), "en-US" para Dólares ($)
+defaultCulture.NumberFormat.CurrencySymbol = "$"; // Opcional: Forzar "S/." si el sistema usa "S/"
+defaultCulture.NumberFormat.CurrencyNegativePattern = 1; // Formato estándar -S/. 10.00
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = new List<System.Globalization.CultureInfo> { defaultCulture },
+    SupportedUICultures = new List<System.Globalization.CultureInfo> { defaultCulture }
+};
+
+app.UseRequestLocalization(localizationOptions);
 app.Run();
