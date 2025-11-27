@@ -83,32 +83,27 @@ namespace Ecommerce.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // 1. Lógica de IMÁGENES
                 string rutaPrincipal = _hostEnvironment.WebRootPath;
                 var archivos = HttpContext.Request.Form.Files;
 
-                // Mapeamos el DTO a una Entidad Base
                 var productoEntidad = _mapper.Map<Producto>(viewModel.Producto);
 
-                // Si es EDITAR, necesitamos recuperar la URL anterior por si no suben una nueva
+                // --- LOGICA DE EDICIÓN ---
                 if (viewModel.Producto.ProductoId != 0)
                 {
-                    // Usamos AsNoTracking para no bloquear la entidad, ya que luego haremos Update(productoEntidad)
                     var productoBd = await _unitOfWork.ProductoRepository.GetFirstOrDefaultAsync(p => p.ProductoId == viewModel.Producto.ProductoId);
                     if (productoBd != null)
                     {
-                        // Si no suben nueva foto, mantenemos la vieja
                         productoEntidad.ImagenUrl = productoBd.ImagenUrl;
                     }
-                    // Desadjuntamos para evitar conflicto de tracking
-                    // (Dependiendo de tu configuración de EF Core, esto puede o no ser necesario, pero es seguro)
                 }
 
                 if (archivos.Count > 0)
                 {
-                    // Se subió una nueva imagen
                     string nombreArchivo = Guid.NewGuid().ToString();
-                    var subidas = Path.Combine(rutaPrincipal, @"imagenes\productos");
+
+                    // CAMBIO 1: Usar Path.Combine con argumentos separados para que funcione en Linux y Windows
+                    var subidas = Path.Combine(rutaPrincipal, "imagenes", "productos");
                     var extension = Path.GetExtension(archivos[0].FileName);
 
                     if (!Directory.Exists(subidas))
@@ -116,31 +111,34 @@ namespace Ecommerce.Areas.Admin.Controllers
                         Directory.CreateDirectory(subidas);
                     }
 
-                    // Si existía una imagen anterior, la borramos para no llenar el servidor
+                    // Borrar imagen anterior
                     if (!string.IsNullOrEmpty(productoEntidad.ImagenUrl))
                     {
-                        var rutaImagenAnterior = Path.Combine(rutaPrincipal, productoEntidad.ImagenUrl.TrimStart('\\'));
+                        // CAMBIO 2: Limpiar la ruta para eliminar barras invertidas viejas si existen
+                        var rutaImagenAnterior = Path.Combine(rutaPrincipal, productoEntidad.ImagenUrl.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString()));
+
                         if (System.IO.File.Exists(rutaImagenAnterior))
                         {
                             System.IO.File.Delete(rutaImagenAnterior);
                         }
                     }
 
-                    // Guardamos la nueva
+                    // Guardar la nueva imagen
                     using (var fileStreams = new FileStream(Path.Combine(subidas, nombreArchivo + extension), FileMode.Create))
                     {
                         archivos[0].CopyTo(fileStreams);
                     }
 
-                    // Actualizamos la ruta en la entidad
-                    productoEntidad.ImagenUrl = @"\imagenes\productos\" + nombreArchivo + extension;
+                    // CAMBIO 3: Guardar la URL con formato WEB (Barras normales /)
+                    // Esto asegura que el navegador la entienda siempre.
+                    productoEntidad.ImagenUrl = "/imagenes/productos/" + nombreArchivo + extension;
                 }
 
-                // 2. Guardado en BD
+                // --- GUARDAR EN BD ---
                 if (viewModel.Producto.ProductoId == 0)
                 {
                     await _unitOfWork.ProductoRepository.AddAsync(productoEntidad);
-                    await _unitOfWork.SaveAsync(); // Para obtener el ID
+                    await _unitOfWork.SaveAsync();
                     await UpdateProductoCategoriasAsync(productoEntidad.ProductoId, viewModel.Producto.CategoriaIds);
                 }
                 else
@@ -153,7 +151,7 @@ namespace Ecommerce.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Falló el modelo, recargar lista de categorías
+            // ... (Resto del código de recarga si falla el modelo) ...
             var todasCategorias = await _unitOfWork.CategoriaRepository.GetAllAsync();
             viewModel.CategoriasDisponibles = todasCategorias.Select(c => new CategoriaCheckboxDto
             {
