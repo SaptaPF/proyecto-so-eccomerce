@@ -17,7 +17,6 @@ namespace Ecommerce.Mapping
                           src.ProductoCategorias.Select(pc => pc.Categoria.Nombre).ToList()
                       )
                   )
-                  // --- TUS MAPEOS (ESTÁN PERFECTOS) ---
                   .ForMember(
                       dest => dest.AverageRating,
                       opt => opt.MapFrom(src =>

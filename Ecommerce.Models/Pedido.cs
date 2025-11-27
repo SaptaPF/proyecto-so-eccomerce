@@ -26,13 +26,5 @@ namespace Ecommerce.Models
         [ForeignKey("DireccionEnvioId")]
         public virtual Direccion? DireccionEnvio { get; set; }
     }
-    //public enum EstadoPedido
-    //{
-    //    Pendiente,
-    //    Procesando,
-    //    Enviado,
-    //    Completado,
-    //    Cancelado
-    //}
 
 }

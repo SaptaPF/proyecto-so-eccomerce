@@ -10,7 +10,7 @@ namespace Ecommerce.Dtos
 {
     public class ProductoUpsertDto
     {
-        public int ProductoId { get; set; } // 0 si es nuevo, > 0 si es para editar
+        public int ProductoId { get; set; } 
 
         [Required(ErrorMessage = "El nombre es requerido.")]
         [StringLength(100, ErrorMessage = "El nombre no debe exceder los 100 caracteres.")]
@@ -28,17 +28,13 @@ namespace Ecommerce.Dtos
         [Range(0, 100000, ErrorMessage = "El stock debe ser 0 o un valor positivo.")]
         public int Stock { get; set; }
 
-        /// <summary>
-        /// Lista de los IDs de las categorías seleccionadas en el formulario.
-        /// </summary>
+      
         [Required(ErrorMessage = "Debe seleccionar al menos una categoría.")]
         [MinLength(1, ErrorMessage = "Debe seleccionar al menos una categoría.")]
         public List<int> CategoriaIds { get; set; } = new List<int>();
 
-        // Para mostrar la imagen actual (si existe)
         public string? ImagenUrl { get; set; }
 
-        // Para recibir el archivo del formulario (No va a la BD, solo al controlador)
         [Display(Name = "Imagen del Producto")]
         public IFormFile? ImagenArchivo { get; set; }
     }

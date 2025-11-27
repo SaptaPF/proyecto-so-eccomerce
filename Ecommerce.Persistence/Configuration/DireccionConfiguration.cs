@@ -25,9 +25,6 @@ namespace Ecommerce.Persistence.Configuration
             builder.Property(d => d.CodigoPostal)
                 .IsRequired()
                 .HasMaxLength(20);
-
-            // La relación 1 a M con Usuario ya está definida
-            // en ApplicationUserConfiguration, pero podemos ser explícitos
             builder.HasOne(d => d.Usuario)
                 .WithMany(u => u.Direcciones)
                 .HasForeignKey(d => d.UsuarioId);

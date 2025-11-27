@@ -20,17 +20,16 @@ namespace Ecommerce.Persistence.Configuration
             builder.Property(d => d.Cantidad)
                 .IsRequired();
 
-            // Importante: Guardar el precio al momento de la compra
             builder.Property(d => d.PrecioUnitario)
                 .IsRequired()
                 .HasColumnType("decimal(18, 2)");
 
             // Relación con Producto
             builder.HasOne(d => d.Producto)
-                .WithMany(p => p.DetallesPedido) // Asumiendo que Producto tiene ICollection<DetallePedido>
+                .WithMany(p => p.DetallesPedido) 
                 .HasForeignKey(d => d.ProductoId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict); // No dejar borrar un producto si está en pedidos
+                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

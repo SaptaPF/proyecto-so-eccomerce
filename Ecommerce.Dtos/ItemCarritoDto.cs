@@ -12,15 +12,12 @@ namespace Ecommerce.Dtos
         public int ProductoId { get; set; }
         public string NombreProducto { get; set; } = string.Empty;
 
-        // El precio al momento de añadirlo (o el actual)
         public decimal PrecioUnitario { get; set; }
         public int Cantidad { get; set; }
 
-        // Propiedad calculada (Precio * Cantidad)
+ 
         public decimal Subtotal { get; set; }
-        public string? ImagenUrl { get; set; } // <-- AÑADIR
+        public string? ImagenUrl { get; set; } 
 
-        // (Opcional) URL de la imagen para mostrar en el resumen del carrito
-        // public string ImagenUrl { get; set; }
     }
 }

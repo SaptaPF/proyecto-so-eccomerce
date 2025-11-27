@@ -21,7 +21,7 @@ namespace Ecommerce.Dtos
 
         [Required(ErrorMessage = "El estado es obligatorio")]
         [StringLength(100)]
-        public string Estado { get; set; } = string.Empty; // O Departamento/Provincia
+        public string Estado { get; set; } = string.Empty; 
 
         [Required(ErrorMessage = "El código postal es obligatorio")]
         [StringLength(20)]

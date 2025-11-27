@@ -5,7 +5,7 @@ namespace Ecommerce.Repository.Interfaces
     public interface IRepositoryBase<T> where T : class
     {
       
-        Task<T?> GetByIdAsync(int id); // Puedes cambiar 'int' por 'object' si tienes IDs mixtos
+        Task<T?> GetByIdAsync(int id); 
         Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter,string? includeProperties = null);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,string? includeProperties = null
         );

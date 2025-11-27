@@ -10,6 +10,6 @@ namespace Ecommerce.Dtos
     {
         public int CategoriaId { get; set; }
         public string Nombre { get; set; } = string.Empty;
-        public bool IsChecked { get; set; } // Para saber si debe estar marcado (en modo Edit)
+        public bool IsChecked { get; set; } 
     }
 }

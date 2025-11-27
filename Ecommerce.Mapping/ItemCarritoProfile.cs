@@ -14,7 +14,6 @@ namespace Ecommerce.Mapping
         public ItemCarritoProfile()
         {
             CreateMap<ItemCarrito, ItemCarritoDto>()
-                // Mapeos personalizados para tomar datos del Producto relacionado
                 .ForMember(
                     dest => dest.NombreProducto,
                     opt => opt.MapFrom(src => src.Producto.Nombre)
@@ -23,7 +22,6 @@ namespace Ecommerce.Mapping
                     dest => dest.PrecioUnitario,
                     opt => opt.MapFrom(src => src.Producto.Precio)
                 )
-                // Mapeo calculado para el subtotal
                 .ForMember(
                     dest => dest.Subtotal,
                     opt => opt.MapFrom(src => src.Cantidad * src.Producto.Precio)

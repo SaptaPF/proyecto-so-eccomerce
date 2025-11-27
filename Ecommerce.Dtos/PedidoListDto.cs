@@ -9,9 +9,9 @@ namespace Ecommerce.Dtos
     public class PedidoListDto
     {
         public int PedidoId { get; set; }
-        public string UsuarioEmail { get; set; } = string.Empty; // Para saber quién compró
+        public string UsuarioEmail { get; set; } = string.Empty; 
         public DateTime FechaPedido { get; set; }
         public decimal TotalPedido { get; set; }
-        public string Estado { get; set; } = string.Empty; // "Procesando", "Enviado", etc.
+        public string Estado { get; set; } = string.Empty; 
     }
 }

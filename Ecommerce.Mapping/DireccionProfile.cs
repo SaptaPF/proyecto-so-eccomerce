@@ -13,10 +13,8 @@ namespace Ecommerce.Mapping
     {
         public DireccionProfile()
         {
-            // Mapeo simple porque las propiedades se llaman igual
             CreateMap<Direccion, DireccionDto>();
 
-            // Mapeo en la otra dirección (para cuando el usuario crea una)
             CreateMap<DireccionDto, Direccion>();
         }
     }

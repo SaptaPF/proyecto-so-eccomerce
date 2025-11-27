@@ -27,21 +27,21 @@ namespace Ecommerce.Persistence.Configuration
                 .WithOne(c => c.Usuario)
                 .HasForeignKey<Carrito>(c => c.UsuarioId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Si se borra el usuario, se borra su carrito
+                .OnDelete(DeleteBehavior.Cascade); 
 
             // 1 a M con Pedido
             builder.HasMany(u => u.Pedidos)
                 .WithOne(p => p.Usuario)
                 .HasForeignKey(p => p.UsuarioId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict); // No dejar borrar un usuario si tiene pedidos
+                .OnDelete(DeleteBehavior.Restrict); 
 
             // 1 a M con Direccion
             builder.HasMany(u => u.Direcciones)
                 .WithOne(d => d.Usuario)
                 .HasForeignKey(d => d.UsuarioId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Si se borra el usuario, se borran sus direcciones
+                .OnDelete(DeleteBehavior.Cascade); 
         }
     }
 }

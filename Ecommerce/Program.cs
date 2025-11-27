@@ -1,7 +1,7 @@
 using DotNetEnv;
 using Ecommerce.Mapping;
 using Ecommerce.Models;
-using Ecommerce.Persistence; // <-- El using BUENO
+using Ecommerce.Persistence; 
 using Ecommerce.Repository.Interfaces;
 using Ecommerce.Repository.Repositories;
 using Ecommerce.Services.Implementation;
@@ -38,21 +38,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         ));
 
 // 2. REGISTRA IDENTITY
-// (Usa el DbContext que acabamos de registrar)
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    // Esto deshabilita la necesidad de confirmar el email
     options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 
-// 3. REGISTRA OTROS SERVICIOS DE FRAMEWORK
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// 4. REGISTRA AutoMapper (Tu método manual, que funciona)
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<ProductoProfile>();
@@ -66,17 +62,16 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<PedidoAdminProfile>();
 });
 
-// 5. REGISTRA TUS PROPIOS SERVICIOS
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 
-// --- 2. CONSTRUCCIÓN DE LA APP ---
-var app = builder.Build(); // <-- Esta línea ya no dará error
+
+var app = builder.Build(); 
 
 // --- 5. SEMBRAR DATOS (Roles y Admin) ---
-// Esto se ejecuta una vez al arrancar la app.
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -115,9 +110,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-var defaultCulture = new System.Globalization.CultureInfo("en-US"); // "es-PE" para Soles (S/), "en-US" para Dólares ($)
-defaultCulture.NumberFormat.CurrencySymbol = "$"; // Opcional: Forzar "S/." si el sistema usa "S/"
-defaultCulture.NumberFormat.CurrencyNegativePattern = 1; // Formato estándar -S/. 10.00
+var defaultCulture = new System.Globalization.CultureInfo("en-US"); 
+defaultCulture.NumberFormat.CurrencySymbol = "$"; 
+defaultCulture.NumberFormat.CurrencyNegativePattern = 1; 
 
 var localizationOptions = new RequestLocalizationOptions
 {

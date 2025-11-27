@@ -17,15 +17,13 @@ namespace Ecommerce.Persistence.Configuration
 
             builder.HasKey(c => c.CarritoId);
 
-            // Índice único para asegurar 1 a 1 con Usuario
             builder.HasIndex(c => c.UsuarioId).IsUnique();
 
-            // Relación 1 a M con ItemCarrito
             builder.HasMany(c => c.Items)
                 .WithOne(i => i.Carrito)
                 .HasForeignKey(i => i.CarritoId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // Si se borra el carrito, se borran sus items
+                .OnDelete(DeleteBehavior.Cascade); 
         }
     }
 }

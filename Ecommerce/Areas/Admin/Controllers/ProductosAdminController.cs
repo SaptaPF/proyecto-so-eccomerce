@@ -23,18 +23,18 @@ namespace Ecommerce.Areas.Admin.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _hostEnvironment;
-        private readonly ApplicationDbContext _context; // <-- 1. AÑADIR ESTA VARIABLE
+        private readonly ApplicationDbContext _context; 
 
         public ProductosAdminController(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IWebHostEnvironment hostEnvironment,
-            ApplicationDbContext context) // <-- 2. INYECTAR EL CONTEXTO
+            ApplicationDbContext context) 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hostEnvironment = hostEnvironment;
-            _context = context; // <-- 3. ASIGNARLO
+            _context = context;
         }
 
         // GET: /Admin/ProductosAdmin

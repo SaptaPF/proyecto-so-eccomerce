@@ -13,7 +13,6 @@ namespace Ecommerce.Mapping
     {
         public CategoriaUpsertProfile()
         {
-            // Mapeo bidireccional para el formulario
             CreateMap<Categoria, CategoriaUpsertDto>().ReverseMap();
         }
     }

@@ -13,12 +13,10 @@ namespace Ecommerce.Mapping
     {
         public PedidoAdminProfile()
         {
-            // 1. Mapeo para la LISTA (Index)
             CreateMap<Pedido, PedidoListDto>()
                 .ForMember(dest => dest.UsuarioEmail, opt => opt.MapFrom(src => src.Usuario.Email))
                 .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Estado.ToString()));
 
-            // 2. Mapeo para el DETALLE (Details)
             CreateMap<Pedido, PedidoDetailViewModel>()
                 .ForMember(dest => dest.UsuarioNombre, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}"))
                 .ForMember(dest => dest.UsuarioEmail, opt => opt.MapFrom(src => src.Usuario.Email))
@@ -29,7 +27,6 @@ namespace Ecommerce.Mapping
                     : "Sin dirección registrada"))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.DetallesPedido));
 
-            // Sub-mapeo para los items
             CreateMap<DetallePedido, DetallePedidoDto>()
                 .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto.Nombre));
         }

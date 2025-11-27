@@ -13,10 +13,8 @@ namespace Ecommerce.Mapping
     {
         public CarritoProfile()
         {
-            // Mapea Carrito a CarritoDto
             CreateMap<Carrito, CarritoDto>()
-                // Ignoramos TotalGeneral, ya que lo calcularemos 
-                // manualmente en el servicio.
+             
                 .ForMember(dest => dest.TotalGeneral, opt => opt.Ignore());
         }
     }

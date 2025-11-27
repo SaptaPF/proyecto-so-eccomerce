@@ -73,11 +73,7 @@ namespace Ecommerce.Services.Implementation
             // 1. Mapeamos la entidad al DTO
             var carritoDto = _mapper.Map<CarritoDto>(carrito);
 
-            // ---
-            // ¡¡AQUÍ ESTÁ EL ARREGLO!!
-            // 2. Calculamos el TotalGeneral sumando los subtotales de los items
-            // (Los subtotales SÍ se calculan en 'ItemCarritoProfile')
-            // ---
+   
             carritoDto.TotalGeneral = carritoDto.Items.Sum(i => i.Subtotal);
 
             // 3. Devolvemos el DTO completo
@@ -111,12 +107,8 @@ namespace Ecommerce.Services.Implementation
                 await _unitOfWork.SaveAsync();
             }
 
-            // Devolver el carrito actualizado (ahora con el total correcto)
             return await GetCarritoDtoAsync(usuarioId);
         }
-
-
-        // --- Funciones Privadas de Ayuda ---
 
         private async Task<Carrito> GetOrCreateCarritoAsync(string usuarioId)
         {

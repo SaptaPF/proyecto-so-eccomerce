@@ -12,7 +12,6 @@ namespace Ecommerce.Dtos
 
         public List<ItemCarritoDto> Items { get; set; } = new List<ItemCarritoDto>();
 
-        // El total calculado de todos los Subtotales
         public decimal TotalGeneral { get; set; }
     }
 }

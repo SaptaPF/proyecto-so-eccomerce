@@ -9,9 +9,7 @@ namespace Ecommerce.Services.Implementation
     public class PedidoService : IPedidoService
     {
         private readonly IUnitOfWork _unitOfWork;
-        // NOTA: No necesitamos ICarritoService porque vamos a
-        // manejar las entidades del carrito directamente para la transacción.
-
+  
         public PedidoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -22,7 +20,7 @@ namespace Ecommerce.Services.Implementation
             // 1. Obtener el carrito y sus ítems
             var carrito = await _unitOfWork.CarritoRepository.GetFirstOrDefaultAsync(
                 c => c.UsuarioId == usuarioId,
-                includeProperties: "Items.Producto" // ¡MUY IMPORTANTE incluir Items y Producto!
+                includeProperties: "Items.Producto" 
             );
 
             if (carrito == null || !carrito.Items.Any())
@@ -34,7 +32,7 @@ namespace Ecommerce.Services.Implementation
             decimal totalPedido = 0;
             foreach (var item in carrito.Items)
             {
-                // Opcional: Doble chequeo de stock aquí, antes de crear el pedido
+                
                 if (item.Producto.Stock < item.Cantidad)
                 {
                     throw new InvalidOperationException($"Stock insuficiente para {item.Producto.Nombre}. Solo quedan {item.Producto.Stock}.");
@@ -79,8 +77,7 @@ namespace Ecommerce.Services.Implementation
             // 6. Vaciar el carrito (Eliminar los ItemsCarrito)
             _unitOfWork.ItemCarritoRepository.RemoveRange(carrito.Items);
 
-            // 7. Guardar TODOS los cambios (Detalles, Stock, Vaciado de Carrito)
-            // como una sola transacción final.
+ 
             await _unitOfWork.SaveAsync();
 
             return pedido;

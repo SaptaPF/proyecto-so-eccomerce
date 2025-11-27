@@ -11,7 +11,6 @@ namespace Ecommerce.Dtos
         public int CategoriaId { get; set; }
         public string Nombre { get; set; } = string.Empty;
 
-        // (Opcional) Contar cuántos productos hay en esta categoría
         public int CantidadProductos { get; set; }
     }
 }
