@@ -1,14 +1,16 @@
 ﻿using AutoMapper;
 using Ecommerce.Dtos;
 using Ecommerce.Models;
+using Ecommerce.Persistence; // <-- NECESARIO para ApplicationDbContext
 using Ecommerce.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting; // Necesario para IWebHostEnvironment
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO; // Necesario para manejar archivos
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,19 +22,24 @@ namespace Ecommerce.Areas.Admin.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IWebHostEnvironment _hostEnvironment; // <-- Para saber dónde guardar las imágenes
+        private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly ApplicationDbContext _context; // <-- 1. AÑADIR ESTA VARIABLE
 
-        public ProductosAdminController(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment hostEnvironment)
+        public ProductosAdminController(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IWebHostEnvironment hostEnvironment,
+            ApplicationDbContext context) // <-- 2. INYECTAR EL CONTEXTO
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hostEnvironment = hostEnvironment;
+            _context = context; // <-- 3. ASIGNARLO
         }
 
         // GET: /Admin/ProductosAdmin
         public async Task<IActionResult> Index()
         {
-            // Incluimos las categorías para mostrarlas en la tabla si quisieras
             var productos = await _unitOfWork.ProductoRepository.GetAllAsync(includeProperties: "ProductoCategorias.Categoria");
             return View(productos);
         }
@@ -45,7 +52,7 @@ namespace Ecommerce.Areas.Admin.Controllers
 
             if (id == null || id == 0)
             {
-                // --- CREAR ---
+                // CREAR
                 viewModel.CategoriasDisponibles = todasCategorias.Select(c => new CategoriaCheckboxDto
                 {
                     CategoriaId = c.CategoriaId,
@@ -55,7 +62,7 @@ namespace Ecommerce.Areas.Admin.Controllers
             }
             else
             {
-                // --- EDITAR ---
+                // EDITAR
                 var producto = await _unitOfWork.ProductoRepository.GetFirstOrDefaultAsync(
                     p => p.ProductoId == id,
                     includeProperties: "ProductoCategorias"
@@ -91,18 +98,26 @@ namespace Ecommerce.Areas.Admin.Controllers
                 // --- LOGICA DE EDICIÓN ---
                 if (viewModel.Producto.ProductoId != 0)
                 {
+                    // Obtenemos el producto viejo de la BD
                     var productoBd = await _unitOfWork.ProductoRepository.GetFirstOrDefaultAsync(p => p.ProductoId == viewModel.Producto.ProductoId);
+
                     if (productoBd != null)
                     {
+                        // Copiamos la URL vieja
                         productoEntidad.ImagenUrl = productoBd.ImagenUrl;
+
+                        // --- ¡¡LA CORRECCIÓN QUE NECESITAS!! ---
+                        // Le decimos a EF Core: "Deja de rastrear este objeto viejo".
+                        // Así evitamos el conflicto de "instance already being tracked".
+                        _context.Entry(productoBd).State = EntityState.Detached;
+                        // ---------------------------------------
                     }
                 }
 
                 if (archivos.Count > 0)
                 {
                     string nombreArchivo = Guid.NewGuid().ToString();
-
-                    // CAMBIO 1: Usar Path.Combine con argumentos separados para que funcione en Linux y Windows
+                    // Usamos Path.Combine para compatibilidad Windows/Linux
                     var subidas = Path.Combine(rutaPrincipal, "imagenes", "productos");
                     var extension = Path.GetExtension(archivos[0].FileName);
 
@@ -111,11 +126,16 @@ namespace Ecommerce.Areas.Admin.Controllers
                         Directory.CreateDirectory(subidas);
                     }
 
-                    // Borrar imagen anterior
+                    // Borrar imagen anterior si existe
                     if (!string.IsNullOrEmpty(productoEntidad.ImagenUrl))
                     {
-                        // CAMBIO 2: Limpiar la ruta para eliminar barras invertidas viejas si existen
-                        var rutaImagenAnterior = Path.Combine(rutaPrincipal, productoEntidad.ImagenUrl.TrimStart('/', '\\').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                        var rutaRelativa = productoEntidad.ImagenUrl.TrimStart('/', '\\');
+
+                        // Normalizar separadores para el sistema operativo actual
+                        rutaRelativa = rutaRelativa.Replace("/", Path.DirectorySeparatorChar.ToString())
+                                                   .Replace("\\", Path.DirectorySeparatorChar.ToString());
+
+                        var rutaImagenAnterior = Path.Combine(rutaPrincipal, rutaRelativa);
 
                         if (System.IO.File.Exists(rutaImagenAnterior))
                         {
@@ -129,8 +149,7 @@ namespace Ecommerce.Areas.Admin.Controllers
                         archivos[0].CopyTo(fileStreams);
                     }
 
-                    // CAMBIO 3: Guardar la URL con formato WEB (Barras normales /)
-                    // Esto asegura que el navegador la entienda siempre.
+                    // Guardar URL en formato web (con /)
                     productoEntidad.ImagenUrl = "/imagenes/productos/" + nombreArchivo + extension;
                 }
 
@@ -143,6 +162,7 @@ namespace Ecommerce.Areas.Admin.Controllers
                 }
                 else
                 {
+                    // Ahora el Update funcionará porque ya soltamos (Detached) el objeto viejo
                     _unitOfWork.ProductoRepository.Update(productoEntidad);
                     await UpdateProductoCategoriasAsync(productoEntidad.ProductoId, viewModel.Producto.CategoriaIds);
                 }
@@ -151,7 +171,7 @@ namespace Ecommerce.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // ... (Resto del código de recarga si falla el modelo) ...
+            // Si falla el modelo, recargamos las categorías
             var todasCategorias = await _unitOfWork.CategoriaRepository.GetAllAsync();
             viewModel.CategoriasDisponibles = todasCategorias.Select(c => new CategoriaCheckboxDto
             {
@@ -168,11 +188,9 @@ namespace Ecommerce.Areas.Admin.Controllers
             var categoriasActuales = (await _unitOfWork.ProductoCategoriaRepository
                 .GetAllAsync(pc => pc.ProductoId == productoId)).ToList();
 
-            // Borrar las que ya no están
             var borrar = categoriasActuales.Where(pc => !categoriaIdsSeleccionadas.Contains(pc.CategoriaId));
             _unitOfWork.ProductoCategoriaRepository.RemoveRange(borrar);
 
-            // Añadir las nuevas
             var idsActuales = categoriasActuales.Select(pc => pc.CategoriaId);
             var anadir = categoriaIdsSeleccionadas.Where(id => !idsActuales.Contains(id));
             foreach (var id in anadir)
@@ -193,16 +211,11 @@ namespace Ecommerce.Areas.Admin.Controllers
                     return Json(new { success = false, message = "Error: Producto no encontrado." });
                 }
 
-                // 1. Borrar imagen del servidor si existe (Lógica corregida para Linux/Windows)
+                // Borrar imagen del servidor
                 if (!string.IsNullOrEmpty(producto.ImagenUrl))
                 {
                     string rutaPrincipal = _hostEnvironment.WebRootPath;
-
-                    // Limpiamos la URL de barras invertidas o normales iniciales
                     var rutaRelativa = producto.ImagenUrl.TrimStart('/', '\\');
-
-                    // Reemplazamos las barras de la URL por el separador del sistema operativo actual
-                    // (Linux usará '/', Windows usará '\')
                     rutaRelativa = rutaRelativa.Replace("/", Path.DirectorySeparatorChar.ToString())
                                                .Replace("\\", Path.DirectorySeparatorChar.ToString());
 
@@ -214,29 +227,22 @@ namespace Ecommerce.Areas.Admin.Controllers
                     }
                 }
 
-                // 2. Borrar relaciones de categorías
-                // (Esto es importante hacerlo antes de borrar el producto)
                 var categorias = await _unitOfWork.ProductoCategoriaRepository.GetAllAsync(pc => pc.ProductoId == id);
                 if (categorias != null)
                 {
                     _unitOfWork.ProductoCategoriaRepository.RemoveRange(categorias);
                 }
 
-                // 3. Ahora sí, eliminar el producto
                 _unitOfWork.ProductoRepository.Remove(producto);
-
                 await _unitOfWork.SaveAsync();
                 return Json(new { success = true, message = "Producto eliminado exitosamente." });
             }
             catch (DbUpdateException)
             {
-                // Este error ocurre si el producto ya fue comprado y está en la tabla 'DetallesPedido'
-                // La base de datos impide borrarlo para no romper el historial de pedidos.
                 return Json(new { success = false, message = "No se puede eliminar: El producto es parte de pedidos existentes." });
             }
             catch (Exception ex)
             {
-                // Cualquier otro error (como permisos de archivo) caerá aquí y se mostrará en el SweetAlert
                 return Json(new { success = false, message = "Error inesperado: " + ex.Message });
             }
         }
