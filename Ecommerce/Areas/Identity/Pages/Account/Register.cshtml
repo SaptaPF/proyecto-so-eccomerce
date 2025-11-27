@@ -112,15 +112,14 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo y Enlaces -->
                 <div class="flex items-center">
-                    <a asp-controller="Home" asp-action="Index" class="flex-shrink-0 flex items-center">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="flex-shrink-0 flex items-center">
                         <i class="fas fa-bolt text-accent text-2xl mr-2"></i>
                         <span class="font-bold text-xl text-white">Smart Buy</span>
                     </a>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a asp-controller="Home" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
-                        <a asp-controller="Productos" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Productos</a>
-                        <a href="#" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Categorías</a>
-                        <a href="#" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Ofertas</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
+                        <a asp-area="" asp-controller="Productos" asp-action="Index" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Productos</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Categorias" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Categorías</a>
                     </div>
                 </div>
                 <!-- Iconos Derecha (Con _LoginPartial) -->
