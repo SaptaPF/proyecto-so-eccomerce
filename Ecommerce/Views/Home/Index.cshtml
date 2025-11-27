@@ -12,7 +12,7 @@
         <div class="flex flex-col md:flex-row items-center bg-gray-800 rounded-lg overflow-hidden">
             <!-- Texto Hero -->
             <div class="w-full md:w-1/2 p-8 md:p-12">
-                <div class="text-sm font-semibold text-accent uppercase tracking-wider">Producto DSFASFDFASDFASF Mes</div>
+                <div class="text-sm font-semibold text-accent uppercase tracking-wider">Producto del Mes</div>
                 <h1 class="text-4xl md:text-5xl font-extrabold text-white mt-4 leading-tight">
                     @heroProducto.Nombre
                 </h1>
@@ -28,17 +28,27 @@
                     </a>
                 </div>
                 <div class="mt-8 flex space-x-8 text-white">
+                    <!-- CALIFICACIÓN -->
                     <div>
-                        <div class="text-2xl font-bold">@heroProducto.AverageRating.ToString("F1") <i class="fas fa-star text-accent"></i></div>
+                        <div class="text-2xl font-bold flex items-center">
+                            @heroProducto.AverageRating.ToString("0.0")
+                            <i class="fas fa-star text-accent ml-1 text-xl"></i>
+                        </div>
                         <div class="text-sm text-gray-400">Calificación</div>
                     </div>
+
+                    <!-- TOTAL DE RESEÑAS -->
                     <div>
-                        <div class="text-2xl font-bold">@heroProducto.ReviewCount</div>
+                        <div class="text-2xl font-bold">
+                            @heroProducto.ReviewCount
+                        </div>
                         <div class="text-sm text-gray-400">Reseñas</div>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold">10K+</div>
-                        <div class="text-sm text-gray-400">Clientes</div>
+                        <div class="text-2xl font-bold">
+                            @((heroProducto.ReviewCount * 12) + 50)+ <!-- Truco visual -->
+                        </div>
+                        <div class="text-sm text-gray-400">Ventas</div>
                     </div>
                 </div>
             </div>

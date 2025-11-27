@@ -1,7 +1,7 @@
 using AutoMapper;
 using Ecommerce.Dtos;
 using Ecommerce.Models; // Para ErrorViewModel
-using Ecommerce.Repository.Interfaces; // O Ecommerce.Repository (donde esté IUnitOfWork)
+using Ecommerce.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Linq;
@@ -13,7 +13,6 @@ namespace Ecommerce.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        // 1. Inyectamos IUnitOfWork y IMapper
         public HomeController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -29,66 +28,71 @@ namespace Ecommerce.Controllers
                 includeProperties: "ProductoCategorias"
             );
 
-            // 2. Mapear a DTO (Reusamos el CategoriaDto que ya tenemos)
+            // 2. Mapear a DTO
             var dtos = _mapper.Map<IEnumerable<Ecommerce.Dtos.CategoriaDto>>(categorias);
 
             return View(dtos);
         }
-        // 2. La acción Index ahora es asíncrona y construye el ViewModel
+
+        // GET: /Home/Index
         public async Task<IActionResult> Index()
         {
-            // Creamos una sola instancia del ViewModel que vamos a llenar
             var homeViewModel = new HomeViewModel();
 
-            // --- Lógica para "Producto del Mes" (Hero) ---
-            // 1. Usamos GetAllAsync para poder ordenar
-            var productosOrdenados = await _unitOfWork.ProductoRepository.GetAllAsync(
-                filter: p => p.Resenas.Any(), // Solo productos que tengan reseñas
-                orderBy: q => q.OrderByDescending(p => p.Resenas.Average(r => r.Rating)), // Ordenar por rating
-                includeProperties: "ProductoCategorias.Categoria,Resenas"
+            // --- 1. Lógica para "Producto del Mes" (Hero) ---
+            // ESTRATEGIA: El más vendido (contando cantidad en DetallesPedido)
+
+            // Obtenemos productos con sus detalles de pedido y reseñas
+            var todosProductos = await _unitOfWork.ProductoRepository.GetAllAsync(
+                includeProperties: "DetallesPedido,Resenas,ProductoCategorias.Categoria"
             );
 
-            // 2. Y luego tomamos el primero de la lista
-            var productoMesEntidad = productosOrdenados.FirstOrDefault();
+            // Ordenamos en memoria por la suma de cantidades vendidas
+            var productoMesEntidad = todosProductos
+                .OrderByDescending(p => p.DetallesPedido.Sum(dp => dp.Cantidad))
+                .FirstOrDefault();
 
-            // Fallback: Si ningún producto tiene reseñas, toma el primero que encuentre
-            if (productoMesEntidad == null)
+            // Fallback: Si no hay ventas aún, mostramos el producto más caro (Premium)
+            if (productoMesEntidad == null || !productoMesEntidad.DetallesPedido.Any())
             {
-                productoMesEntidad = await _unitOfWork.ProductoRepository.GetFirstOrDefaultAsync(
-                    filter: p => true, // Cualquier producto
-                    includeProperties: "ProductoCategorias.Categoria,Resenas"
-                );
+                productoMesEntidad = todosProductos.OrderByDescending(p => p.Precio).FirstOrDefault();
             }
-            homeViewModel.ProductoDelMes = _mapper.Map<ProductoDto>(productoMesEntidad);
+
+            // Mapeamos si encontramos algo
+            if (productoMesEntidad != null)
+            {
+                homeViewModel.ProductoDelMes = _mapper.Map<ProductoDto>(productoMesEntidad);
+            }
 
 
-            // --- Lógica para "Productos Destacados" ---
+            // --- 2. Lógica para "Productos Destacados" ---
+            // Los 4 productos con más reseñas (populares)
             var productosDestacadosEntidades = await _unitOfWork.ProductoRepository.GetAllAsync(
-                orderBy: q => q.OrderByDescending(p => p.Resenas.Count), // Ordenar por # de reseñas
+                orderBy: q => q.OrderByDescending(p => p.Resenas.Count),
                 includeProperties: "ProductoCategorias.Categoria,Resenas"
             );
             homeViewModel.ProductosDestacados = _mapper.Map<IEnumerable<ProductoDto>>(productosDestacadosEntidades.Take(4));
 
 
-            // --- Lógica para "Categorías Populares" ---
+            // --- 3. Lógica para "Categorías Populares" ---
+            // Las 6 categorías con más productos
             var categoriasPopularesEntidades = await _unitOfWork.CategoriaRepository.GetAllAsync(
-                orderBy: q => q.OrderByDescending(p => p.ProductoCategorias.Count), // Ordenar por # de productos
+                orderBy: q => q.OrderByDescending(p => p.ProductoCategorias.Count),
                 includeProperties: "ProductoCategorias"
             );
             homeViewModel.CategoriasPopulares = _mapper.Map<IEnumerable<CategoriaDto>>(categoriasPopularesEntidades.Take(6));
 
 
-            // --- Lógica para "Reseñas Recientes" (¡Corregida!) ---
+            // --- 4. Lógica para "Reseñas Recientes" ---
+            // Las 3 reseñas más recientes con 4 o más estrellas
             var resenasRecientesEntidades = await _unitOfWork.ResenaRepository.GetAllAsync(
-                filter: r => r.Rating >= 4, // Solo reseñas buenas (4 o 5 estrellas)
-                orderBy: q => q.OrderByDescending(r => r.Fecha), // Las más nuevas primero
-                includeProperties: "Usuario" // <-- CRÍTICO: Para que ResenaProfile funcione
+                filter: r => r.Rating >= 4,
+                orderBy: q => q.OrderByDescending(r => r.Fecha),
+                includeProperties: "Usuario" // ¡IMPORTANTE: Incluir Usuario para el nombre/avatar!
             );
             homeViewModel.ResenasRecientes = _mapper.Map<IEnumerable<ResenaDto>>(resenasRecientesEntidades.Take(3));
 
 
-            // --- Devolvemos el ViewModel completo ---
-            // (Se eliminó la lógica duplicada y el segundo 'return View')
             return View(homeViewModel);
         }
 
@@ -100,7 +104,6 @@ namespace Ecommerce.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            // Asumiendo que tienes un ErrorViewModel en Ecommerce.Models
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
