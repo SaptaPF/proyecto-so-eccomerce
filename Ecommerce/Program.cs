@@ -18,7 +18,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "3.143.232.22";
 //Aqui se va a editar la conexion con la base de datos, ya no en appsettings.json
 var connectionString = $"server={dbHost};database=EcommerceDB;user=WebAdmin;password=admin;";
 
