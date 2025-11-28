@@ -14,9 +14,9 @@ namespace Ecommerce.Models
         public int ResenaId { get; set; }
 
         [Range(1, 5)]
-        public int Rating { get; set; } 
+        public int Rating { get; set; }
 
-        [StringLength(500)]
+        [Column(TypeName = "longtext")]
         public string Comentario { get; set; } = string.Empty;
 
         public DateTime Fecha { get; set; } = DateTime.UtcNow;
